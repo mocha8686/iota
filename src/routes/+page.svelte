@@ -1,2 +1,9 @@
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
+<script lang="ts">
+	let thing = $state('cheese');
+</script>
+
+<h1>Stinky {thing}</h1>
+<input type="text" bind:value={thing} />
+
+<a href="/api/login">Login</a>
+<a href="/app">Go to app</a>
