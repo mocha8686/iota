@@ -85,6 +85,9 @@ devDependencies:
   prettier-plugin-svelte:
     specifier: ^3.2.2
     version: 3.2.2(prettier@3.2.5)(svelte@5.0.0-next.90)
+  stylelint:
+    specifier: ^16.3.1
+    version: 16.3.1(typescript@5.4.3)
   stylelint-config-clean-order:
     specifier: ^5.4.2
     version: 5.4.2(stylelint@16.3.1)
