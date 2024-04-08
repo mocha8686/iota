@@ -1,4 +1,5 @@
 <script lang="ts">
+	import GridTransition from '$lib/components/GridTransition.svelte';
 	import type { PageData } from './$types';
 
 	interface Props {
@@ -9,4 +10,5 @@
 </script>
 
 <h1>Welcome, {data.username}!</h1>
-<a href="/api/logout">Logout</a>
+
+<GridTransition />
