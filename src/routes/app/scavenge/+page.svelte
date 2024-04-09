@@ -4,6 +4,15 @@
 	const { form } = $props();
 
 	const items = getItems();
+
+	function getItemName(itemId: number, quantity: number): string {
+		const item = getItemById(itemId)!;
+		if (quantity === 1) {
+			return item.name.toLowerCase();
+		} else {
+			return item.plural.toLowerCase();
+		}
+	}
 </script>
 
 <h1>Scavenge</h1>
@@ -13,7 +22,10 @@
 {/if}
 
 {#if form?.success}
-	<p>Scavenged {form.quantity} {getItemById(form.itemId)?.name}{form.quantity !== 1 && 's'}</p>
+	<p>
+		Scavenged {form.quantity}
+		{getItemName(form.itemId, form.quantity)}
+	</p>
 {/if}
 
 <form method="POST">

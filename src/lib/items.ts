@@ -3,6 +3,7 @@ import items from './items.json';
 interface Item {
 	id: number;
 	name: string;
+	plural: string;
 }
 
 export function getItemById(id: number): Item | undefined {

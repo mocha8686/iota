@@ -1,6 +1,7 @@
 [
 	{
 		"id": 0,
-		"name": "Scrap metal"
+		"name": "Scrap metal",
+		"plural": "Scrap metal"
 	}
 ]
