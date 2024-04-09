@@ -1,9 +1,10 @@
 import { redirect } from '@sveltejs/kit';
+import { eq } from 'drizzle-orm';
 
-import type { LayoutServerLoad } from './$types';
 import { db } from '$lib/server/db';
 import { characters } from '$lib/server/schema';
-import { eq } from 'drizzle-orm';
+
+import type { LayoutServerLoad } from './$types';
 
 const CHARACTER_PATHNAME = '/app/character';
 

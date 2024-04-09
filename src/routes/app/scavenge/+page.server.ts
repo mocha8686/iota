@@ -1,9 +1,11 @@
 import { fail } from '@sveltejs/kit';
-import type { Actions } from './$types';
+import { sql } from 'drizzle-orm';
 import { z } from 'zod';
+
 import { db, withCharacter } from '$lib/server/db';
 import { items } from '$lib/server/schema';
-import { and, eq, sql } from 'drizzle-orm';
+
+import type { Actions } from './$types';
 
 const Scavenge = z.object({
 	itemId: z.coerce.number({ required_error: 'Item ID is required' }),

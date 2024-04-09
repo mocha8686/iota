@@ -1,9 +1,9 @@
 import items from './items.json';
 
 interface Item {
-	id: number,
-	name: string,
-};
+	id: number;
+	name: string;
+}
 
 export function getItemById(id: number): Item | undefined {
 	const item = items.at(id);

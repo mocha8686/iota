@@ -8,15 +8,8 @@
 		"at-rule-empty-line-before": [
 			"always",
 			{
-				"except": [
-					"after-same-name",
-					"first-nested"
-				],
-				"ignoreAtRules": [
-					"elseif",
-					"else",
-					"mixin"
-				]
+				"except": ["after-same-name", "first-nested"],
+				"ignoreAtRules": ["elseif", "else", "mixin"]
 			}
 		]
 	},

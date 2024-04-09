@@ -1,13 +1,13 @@
 import { redirect } from '@sveltejs/kit';
-import { characters } from '$lib/server/schema';
-import { db } from '$lib/server/db';
-import type { PageServerLoad } from './$types';
-import { eq } from 'drizzle-orm';
-
 import { fail } from '@sveltejs/kit';
-
-import type { Actions } from './$types';
+import { eq } from 'drizzle-orm';
 import { z } from 'zod';
+
+import { db } from '$lib/server/db';
+import { characters } from '$lib/server/schema';
+
+import type { PageServerLoad } from './$types';
+import type { Actions } from './$types';
 
 const NewCharacter = z.object({
 	name: z.string({ required_error: 'Name is required' }).min(1, 'Name cannot be empty'),

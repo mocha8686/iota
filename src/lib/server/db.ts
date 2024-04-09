@@ -1,9 +1,10 @@
 import { createClient } from '@libsql/client';
+import { eq } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/libsql';
 
 import { TURSO_AUTH_TOKEN, TURSO_DATABASE_URL } from '$env/static/private';
+
 import { characters } from './schema';
-import { eq } from 'drizzle-orm';
 
 const conn = createClient({
 	url: TURSO_DATABASE_URL,

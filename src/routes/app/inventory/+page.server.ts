@@ -1,8 +1,10 @@
+import { fail } from '@sveltejs/kit';
+import { eq } from 'drizzle-orm';
+
 import { db, withCharacter } from '$lib/server/db';
 import { items } from '$lib/server/schema';
-import { eq } from 'drizzle-orm';
+
 import type { PageServerLoad } from './$types';
-import { fail } from '@sveltejs/kit';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	if (!locals.user) return fail(401);
