@@ -20,19 +20,18 @@ export const characters = sqliteTable('characters', {
 	userId: text('user_id')
 		.notNull()
 		.references(() => users.id),
-	inventory: text('inventory', { mode: 'json' }).default('[]'),
 });
 
 export const items = sqliteTable(
 	'items',
 	{
 		id: integer('item_id').notNull(),
-		characterId: integer('character_id')
+		userId: text('user_id')
 			.notNull()
-			.references(() => characters.id),
+			.references(() => users.id),
 		quantity: integer('quantity').notNull().default(1),
 	},
 	(t) => ({
-		pk: primaryKey({ columns: [t.characterId, t.id] }),
+		pk: primaryKey({ columns: [t.userId, t.id] }),
 	}),
 );

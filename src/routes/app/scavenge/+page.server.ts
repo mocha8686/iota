@@ -2,7 +2,7 @@ import { fail } from '@sveltejs/kit';
 import { sql } from 'drizzle-orm';
 import { z } from 'zod';
 
-import { db, withCharacter } from '$lib/server/db';
+import { db } from '$lib/server/db';
 import { items } from '$lib/server/schema';
 
 import type { Actions } from './$types';
@@ -26,17 +26,15 @@ export const actions = {
 		}
 
 		const data = res.data;
-		const character = withCharacter(locals.user.id);
 		const dbRes = await db
-			.with(character)
 			.insert(items)
 			.values({
 				id: data.itemId,
-				characterId: sql`(SELECT ${character.id} FROM ${character})`,
+				userId: locals.user.id,
 				quantity: data.quantity,
 			})
 			.onConflictDoUpdate({
-				target: [items.characterId, items.id],
+				target: [items.userId, items.id],
 				set: { quantity: sql`${items.quantity} + ${data.quantity}` },
 			});
 
