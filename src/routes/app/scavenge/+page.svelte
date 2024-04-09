@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getItems } from '$lib/items';
+	import { getItemById, getItems } from '$lib/items';
 
 	const { form } = $props();
 
@@ -10,6 +10,10 @@
 
 {#if form?.error}
 	<p>Error: {form.error}</p>
+{/if}
+
+{#if form?.success}
+	<p>Scavenged {form.quantity} {getItemById(form.itemId)?.name}{form.quantity !== 1 && 's'}</p>
 {/if}
 
 <form method="POST">

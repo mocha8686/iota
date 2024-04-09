@@ -45,5 +45,7 @@ export const actions = {
 				error: 'Failed to update items',
 			});
 		}
+
+		return { success: true, itemId: data.itemId, quantity: data.quantity };
 	},
 } satisfies Actions;
