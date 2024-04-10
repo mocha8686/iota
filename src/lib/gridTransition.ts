@@ -4,11 +4,21 @@ const RADIANS = (DEGREES * Math.PI) / 180;
 const BOX_COLOR = 'black';
 const BORDER_COLOR = '#444';
 
+const DEFAULTS = {
+	DURATION: 500,
+	HOLD_DURATION: 500,
+	BOX_ANIMATION_DURATION: 100,
+	BOX_ROTATION: 60,
+	DELAY_FUNCTION: (x: number, y: number): number => (6 - (5 * x + y)) / 6,
+};
+
 export interface GridParams {
 	duration?: number;
-	screenTime?: number;
+	holdDuration?: number;
 	callback?: () => void;
 	boxAnimationDuration?: number;
+	boxRotation?: number;
+	delayFunction?: (x: number, y: number) => number;
 }
 
 function debounce(func: () => void, wait: number, throttle?: boolean): () => void {
@@ -35,18 +45,16 @@ export function grid(
 	options: { direction: 'in' | 'out' | 'both' },
 ) {
 	if (options.direction === 'both') throw new Error('split transition: into out: and in:');
-	const duration = params?.duration ?? 500;
-	const screenTime = params?.screenTime ?? 500;
-	const boxAnimationDuration = params?.boxAnimationDuration ?? 200;
+	const duration = params?.duration ?? DEFAULTS.DURATION;
+	const holdDuration = params?.holdDuration ?? DEFAULTS.HOLD_DURATION;
+	const boxAnimationDuration = params?.boxAnimationDuration ?? DEFAULTS.BOX_ANIMATION_DURATION;
+	const boxRotation = params?.boxRotation ?? DEFAULTS.BOX_ROTATION;
+	const delayFunction = params?.delayFunction ?? DEFAULTS.DELAY_FUNCTION;
 
 	if (!eventListenerAttached) {
 		eventListenerAttached = true;
 		resizeGrid();
 		window.addEventListener('resize', debounce(resizeGrid, 250));
-	}
-
-	function delayFunction(x: number, y: number): number {
-		return (6 - (5 * x + y)) / 6;
 	}
 
 	for (const element of document.getElementsByClassName('grid-transition-box')) {
@@ -57,7 +65,7 @@ export function grid(
 		const boxDelay = delayFunction(x, y);
 
 		const hidden = {
-			rotate: '1 -1 0 90deg',
+			rotate: `1 -1 0 ${boxRotation}deg`,
 			opacity: 0,
 		};
 
@@ -84,14 +92,14 @@ export function grid(
 				}
 				animation.play();
 			},
-			options.direction === 'in' ? screenTime + duration : 0,
+			options.direction === 'in' ? holdDuration + duration : 0,
 		);
 	}
 
 	if (options.direction === 'in') {
 		node.style.visibility = 'hidden';
 		return {
-			delay: screenTime + duration + boxAnimationDuration,
+			delay: holdDuration + duration + boxAnimationDuration,
 			duration: duration,
 		};
 	} else {
