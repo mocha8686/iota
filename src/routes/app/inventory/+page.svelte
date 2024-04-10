@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getItemById } from '$lib/items';
+	import items from '$lib/items.json';
 
 	const { data } = $props();
 </script>
@@ -8,7 +8,7 @@
 {#if data?.items && data.items.length > 0}
 	<ul>
 		{#each data.items as item}
-			<li>{getItemById(item.id)?.name} x{item.quantity}</li>
+			<li>{items[item.id].name} x{item.quantity}</li>
 		{/each}
 	</ul>
 {:else}
