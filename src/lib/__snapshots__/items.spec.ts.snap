@@ -1,0 +1,12 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`maintains item order 1`] = `
+[
+  {
+    "name": "Scrap metal",
+  },
+  {
+    "name": "Aquaite",
+  },
+]
+`;
