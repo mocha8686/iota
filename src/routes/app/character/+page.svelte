@@ -1,24 +1,54 @@
 <script lang="ts">
-	const { data, form } = $props();
+	import { Control, Field, FieldErrors, Label } from 'formsnap';
+	import { superForm } from 'sveltekit-superforms';
+	import { zodClient } from 'sveltekit-superforms/adapters';
+	import { CreateCharacter } from './schema';
+
+	const { data } = $props();
+
+	const createForm = superForm(data.createForm, { validators: zodClient(CreateCharacter) });
+	const { form: createFormData, message: createMessage, enhance: createEnhance } = createForm;
+
+	const deleteForm = superForm(data.deleteForm);
+	const { message: deleteMessage, enhance: deleteEnhance } = deleteForm;
 </script>
 
 <h1>Character</h1>
 
-{#if form?.error}
-	<p>Error: {form.error}</p>
+{#if $createMessage}
+	<h2>{$createMessage}</h2>
 {/if}
 
-{#if data.character}
-	<p>Name: {data.character.name}</p>
-	<form method="POST" action="?/delete">
-		<button>Delete character</button>
-	</form>
-{:else}
-	<form method="POST" action="?/create">
-		<label
-			>Name
-			<input name="name" type="text" min="1" value={form?.name ?? ''} />
-		</label>
-		<button>Create new character</button>
+{#if $deleteMessage}
+	<h2>{$deleteMessage}</h2>
+{/if}
+
+{#if data.characters}
+	<form method="POST" action="?/delete" use:deleteEnhance>
+		<ul>
+			{#each data.characters as character}
+				<li>
+					{character.name}
+					<button name="id" value={character.id}>Delete character</button>
+				</li>
+			{/each}
+		</ul>
 	</form>
 {/if}
+
+<form method="POST" action="?/create" use:createEnhance>
+	<Field form={createForm} name="name">
+		<Control let:attrs>
+			<Label>Name</Label>
+			<input {...attrs} type="text" bind:value={$createFormData.name} />
+		</Control>
+		<FieldErrors />
+	</Field>
+	<button>Create new character</button>
+</form>
+
+<style lang="scss">
+	.invalid {
+		color: red;
+	}
+</style>
