@@ -1,11 +1,68 @@
 [
 	{
-		"name": "Ruins"
+		"name": "Ruins",
+		"items": [
+			{
+				"id": 2,
+				"weight": 1,
+				"count": [6, 10]
+			}
+		],
+		"encounterChance": 0.3,
+		"encounters": [
+			{
+				"weight": 1,
+				"enemies": [
+					{
+						"id": 0,
+						"count": 2
+					}
+				]
+			}
+		]
 	},
 	{
-		"name": "Depths"
+		"name": "Depths",
+		"items": [
+			{
+				"id": 1,
+				"weight": 1,
+				"count": 1
+			}
+		],
+		"encounterChance": 0.7,
+		"encounters": [
+			{
+				"weight": 1,
+				"enemies": [
+					{
+						"id": 1,
+						"count": 6
+					}
+				]
+			}
+		]
 	},
 	{
-		"name": "Alleys"
+		"name": "Alleys",
+		"items": [
+			{
+				"id": 0,
+				"weight": 1,
+				"count": [3, 6]
+			}
+		],
+		"encounterChance": 0.5,
+		"encounters": [
+			{
+				"weight": 1,
+				"enemies": [
+					{
+						"id": 2,
+						"count": 1
+					}
+				]
+			}
+		]
 	}
 ]

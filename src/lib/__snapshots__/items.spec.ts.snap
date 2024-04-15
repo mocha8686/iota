@@ -8,5 +8,8 @@ exports[`maintains item order 1`] = `
   {
     "name": "Aquaite",
   },
+  {
+    "name": "Wire",
+  },
 ]
 `;
