@@ -7,4 +7,3 @@ export const CreateCharacter = z.object({
 export const DeleteCharacter = z.object({
 	id: z.number({ required_error: 'ID is required' }).positive('ID cannot be negative'),
 });
-

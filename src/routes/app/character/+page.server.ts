@@ -1,14 +1,14 @@
 import { redirect } from '@sveltejs/kit';
 import { fail } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
+import { message, superValidate } from 'sveltekit-superforms';
+import { zod } from 'sveltekit-superforms/adapters';
 
 import { db } from '$lib/server/db';
+import { log } from '$lib/server/log';
 import { characters } from '$lib/server/schema';
 
-import type { PageServerLoad, Actions } from './$types';
-import { zod } from 'sveltekit-superforms/adapters';
-import { message, superValidate } from 'sveltekit-superforms';
-import { log } from '$lib/server/log';
+import type { Actions,PageServerLoad } from './$types';
 import { CreateCharacter, DeleteCharacter } from './schema';
 
 export const load: PageServerLoad = async ({ locals }) => {

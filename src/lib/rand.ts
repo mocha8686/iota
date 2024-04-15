@@ -9,5 +9,5 @@ export function weightedRandom<T>(items: WeightedItem<T>[]): T {
 		[],
 	);
 	const random = Math.random() * weights[weights.length - 1];
-	return items[weights.findIndex(weight => weight > random)].item;
+	return items[weights.findIndex((weight) => weight > random)].item;
 }

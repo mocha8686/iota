@@ -1,9 +1,11 @@
-import { z } from 'zod';
-import type { Actions, PageServerLoad } from './$types';
 import { error, fail } from '@sveltejs/kit';
+import { z } from 'zod';
+
 import items from '$lib/items.json';
 import locations from '$lib/locations.json';
 import { weightedRandom } from '$lib/rand';
+
+import type { Actions, PageServerLoad } from './$types';
 
 const LocationId = z.coerce.number().min(0);
 

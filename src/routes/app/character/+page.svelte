@@ -2,6 +2,7 @@
 	import { Control, Field, FieldErrors, Label } from 'formsnap';
 	import { superForm } from 'sveltekit-superforms';
 	import { zodClient } from 'sveltekit-superforms/adapters';
+
 	import { CreateCharacter } from './schema';
 
 	const { data } = $props();
