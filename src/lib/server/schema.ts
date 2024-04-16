@@ -29,7 +29,7 @@ export const items = sqliteTable(
 		userId: text('user_id')
 			.notNull()
 			.references(() => users.id),
-		quantity: integer('quantity').notNull().default(1),
+		count: integer('count').notNull().default(1),
 	},
 	(t) => ({
 		pk: primaryKey({ columns: [t.userId, t.id] }),

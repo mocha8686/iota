@@ -1,11 +1,15 @@
 import { error, fail } from '@sveltejs/kit';
 import { z } from 'zod';
 
-import items from '$lib/items.json';
+import itemsJson from '$lib/items.json';
 import locations from '$lib/locations.json';
 import { weightedRandom } from '$lib/rand';
 
 import type { Actions, PageServerLoad } from './$types';
+import { log } from '$lib/server/log';
+import { db } from '$lib/server/db';
+import { items } from '$lib/server/schema';
+import { sql } from 'drizzle-orm';
 
 const LocationId = z.coerce.number().min(0);
 
@@ -22,7 +26,9 @@ export const load: PageServerLoad = async ({ params }) => {
 };
 
 export const actions = {
-	default: async ({ params }) => {
+	default: async ({ locals, params }) => {
+		if (!locals.user) return fail(401);
+
 		const res = LocationId.safeParse(params.id);
 		if (!res.success) return fail(400, { message: 'Invalid location' });
 
@@ -42,9 +48,26 @@ export const actions = {
 				})),
 			);
 
-			const item = items[data.id];
 			const count =
 				typeof data.count === 'number' ? data.count : randomInt(data.count[0], data.count[1]);
+
+			const l = log.child({ userId: locals.user.id, itemId: data.id, count });
+
+			try {
+				await db
+					.insert(items)
+					.values({ id: data.id, userId: locals.user.id, count })
+					.onConflictDoUpdate({
+						target: [items.userId, items.id],
+						set: { count: sql`${items.count} + ${count}` },
+					});
+				l.info('Added items to inventory');
+			} catch (err) {
+				l.error({ type: 'db', err }, 'Database error during scavenge');
+				return fail(500, { message: 'Failed to save items.' });
+			}
+
+			const item = itemsJson[data.id];
 			return { type: 'item', item: item.name, count };
 		}
 	},

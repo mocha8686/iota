@@ -10,7 +10,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 	if (!locals.user) return fail(401);
 
 	const dbRes = await db
-		.select({ id: items.id, quantity: items.quantity })
+		.select({ id: items.id, count: items.count })
 		.from(items)
 		.where(eq(items.userId, locals.user.id));
 

@@ -8,7 +8,7 @@
 {#if data?.items && data.items.length > 0}
 	<ul>
 		{#each data.items as item}
-			<li>{items[item.id].name} x{item.quantity}</li>
+			<li>{items[item.id].name} x{item.count}</li>
 		{/each}
 	</ul>
 {:else}
