@@ -1,9 +1,18 @@
 <script lang="ts">
-	import { grid } from '$lib/gridTransition';
+	import { onNavigate } from '$app/navigation';
+	import { grid } from '$lib/transition';
 
 	const { data } = $props();
 
 	let disabled = $state(false);
+
+	onNavigate(async ({ from, to }) => {
+		console.log({ from, to });
+		if (from && to && from.url.toString() === to.url.toString()) return;
+		disabled = true;
+		await grid();
+		return () => (disabled = false);
+	});
 </script>
 
 <header>
@@ -18,10 +27,7 @@
 </header>
 
 {#key data.pathname}
-	<main
-		out:grid={{ callback: () => (disabled = true) }}
-		in:grid={{ callback: () => (disabled = false) }}
-	>
+	<main>
 		<slot />
 	</main>
 {/key}
