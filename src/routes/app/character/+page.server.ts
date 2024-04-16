@@ -8,7 +8,7 @@ import { db } from '$lib/server/db';
 import { log } from '$lib/server/log';
 import { characters } from '$lib/server/schema';
 
-import type { Actions,PageServerLoad } from './$types';
+import type { Actions, PageServerLoad } from './$types';
 import { CreateCharacter, DeleteCharacter } from './schema';
 
 export const load: PageServerLoad = async ({ locals }) => {
