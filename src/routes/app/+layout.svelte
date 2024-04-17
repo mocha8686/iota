@@ -2,7 +2,7 @@
 	import { onNavigate } from '$app/navigation';
 	import { grid } from '$lib/transition';
 
-	const { data } = $props();
+	const { data, children } = $props();
 
 	let disabled = $state(false);
 
@@ -28,7 +28,7 @@
 
 {#key data.pathname}
 	<main>
-		<slot />
+		{@render children()}
 	</main>
 {/key}
 
