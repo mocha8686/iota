@@ -1,5 +1,4 @@
 import { afterEach, describe, expect, it } from 'vitest';
-
 import { randomInt, randomIntInclusive, weightedRandom } from './rand';
 
 function changeRandom(n: number) {
@@ -21,7 +20,18 @@ describe('random', () => {
 			{ item: 'qux', weight: 4 },
 		];
 
-		const expected = ['foo', 'foo', 'bar', 'baz', 'baz', 'baz', 'qux', 'qux', 'qux', 'qux'];
+		const expected = [
+			'foo',
+			'foo',
+			'bar',
+			'baz',
+			'baz',
+			'baz',
+			'qux',
+			'qux',
+			'qux',
+			'qux',
+		];
 
 		for (let i = 0; i < 10; i++) {
 			changeRandom(i / 10);

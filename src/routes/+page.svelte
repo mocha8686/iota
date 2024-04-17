@@ -1,5 +1,5 @@
 <script lang="ts">
-	let thing = $state('cheese');
+const thing = $state('cheese');
 </script>
 
 <h1>Stinky {thing}</h1>

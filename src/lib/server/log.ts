@@ -1,10 +1,8 @@
+import { dev } from '$app/environment';
 import pino, { type LoggerOptions } from 'pino';
 
-import { dev } from '$app/environment';
-
-const options =
-	dev ?
-		({
+const options = dev
+	? ({
 			transport: {
 				target: 'pino-pretty',
 				options: {
@@ -12,6 +10,6 @@ const options =
 				},
 			},
 		} satisfies LoggerOptions)
-	:	undefined;
+	: undefined;
 
 export const log = pino(options);

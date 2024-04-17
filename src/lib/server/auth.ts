@@ -1,10 +1,8 @@
+import { dev } from '$app/environment';
+import { GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET } from '$env/static/private';
 import { DrizzleSQLiteAdapter } from '@lucia-auth/adapter-drizzle';
 import { GitHub } from 'arctic';
 import { Lucia } from 'lucia';
-
-import { dev } from '$app/environment';
-import { GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET } from '$env/static/private';
-
 import { db } from './db';
 import { sessions, users } from './schema';
 
@@ -16,7 +14,7 @@ export const lucia = new Lucia(adapter, {
 			secure: !dev,
 		},
 	},
-	getUserAttributes: (attributes) => {
+	getUserAttributes: attributes => {
 		return {
 			githubId: attributes.githubId,
 			username: attributes.username,

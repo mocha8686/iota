@@ -1,8 +1,7 @@
-import { redirect, type RequestEvent } from '@sveltejs/kit';
-import { generateState } from 'arctic';
-
 import { dev } from '$app/environment';
 import { github } from '$lib/server/auth';
+import { type RequestEvent, redirect } from '@sveltejs/kit';
+import { generateState } from 'arctic';
 
 export async function GET(event: RequestEvent): Promise<Response> {
 	const state = generateState();

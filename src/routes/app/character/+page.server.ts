@@ -1,13 +1,11 @@
+import { db } from '$lib/server/db';
+import { log } from '$lib/server/log';
+import { characters } from '$lib/server/schema';
 import { redirect } from '@sveltejs/kit';
 import { fail } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
 import { message, superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
-
-import { db } from '$lib/server/db';
-import { log } from '$lib/server/log';
-import { characters } from '$lib/server/schema';
-
 import type { Actions, PageServerLoad } from './$types';
 import { CreateCharacter, DeleteCharacter } from './schema';
 
@@ -74,13 +72,17 @@ export const actions = {
 			).at(0);
 
 			if (!res) {
-				return message(deleteForm, 'Character does not exist.', { status: 400 });
+				return message(deleteForm, 'Character does not exist.', {
+					status: 400,
+				});
 			}
 
 			l.info({ characterId: res.characterId }, 'Deleted character');
 		} catch (err) {
 			l.error({ type: 'db', err }, 'Database error during character creation');
-			return message(deleteForm, 'Failed to delete character.', { status: 500 });
+			return message(deleteForm, 'Failed to delete character.', {
+				status: 500,
+			});
 		}
 
 		return message(deleteForm, 'Deleted character.');

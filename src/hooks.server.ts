@@ -1,8 +1,7 @@
-import { error, type Handle } from '@sveltejs/kit';
-import { verifyRequestOrigin } from 'lucia';
-
 import { lucia } from '$lib/server/auth';
 import { log } from '$lib/server/log';
+import { type Handle, error } from '@sveltejs/kit';
+import { verifyRequestOrigin } from 'lucia';
 
 export const handle: Handle = async ({ event, resolve }) => {
 	log.info(
@@ -16,7 +15,11 @@ export const handle: Handle = async ({ event, resolve }) => {
 	if (event.request.method !== 'GET') {
 		const originHeader = event.request.headers.get('Origin');
 		const hostHeader = event.request.headers.get('Host');
-		if (!originHeader || !hostHeader || !verifyRequestOrigin(originHeader, [hostHeader])) {
+		if (
+			!originHeader ||
+			!hostHeader ||
+			!verifyRequestOrigin(originHeader, [hostHeader])
+		) {
 			log.warn({ origin: originHeader }, 'Failed request origin verification');
 			error(403);
 		}
@@ -30,7 +33,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 	}
 
 	const { session, user } = await lucia.validateSession(sessionId);
-	if (session && session.fresh) {
+	if (session?.fresh) {
 		const sessionCookie = lucia.createSessionCookie(session.id);
 		event.cookies.set(sessionCookie.name, sessionCookie.value, {
 			path: '.',

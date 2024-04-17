@@ -1,5 +1,5 @@
 <script lang="ts">
-	import locations from '$lib/locations.json';
+import locations from '$lib/locations.json';
 </script>
 
 <h1>Scavenge</h1>

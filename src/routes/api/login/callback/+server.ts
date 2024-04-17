@@ -1,12 +1,11 @@
-import { error, redirect, type RequestEvent } from '@sveltejs/kit';
-import { OAuth2RequestError } from 'arctic';
-import { eq } from 'drizzle-orm';
-import { generateId } from 'lucia';
-
 import { github, lucia } from '$lib/server/auth';
 import { db } from '$lib/server/db';
 import { log } from '$lib/server/log';
 import { users } from '$lib/server/schema';
+import { type RequestEvent, error, redirect } from '@sveltejs/kit';
+import { OAuth2RequestError } from 'arctic';
+import { eq } from 'drizzle-orm';
+import { generateId } from 'lucia';
 
 export async function GET(event: RequestEvent): Promise<Response> {
 	const code = event.url.searchParams.get('code');
@@ -14,11 +13,13 @@ export async function GET(event: RequestEvent): Promise<Response> {
 	const storedState = event.cookies.get('github_oauth_state') ?? null;
 
 	if (!code || !state || !storedState || state !== storedState) {
-		const reason =
-			!code ? 'Missing code'
-			: !state ? 'Missing state'
-			: state !== storedState ? 'States do not match'
-			: 'Unknown reason';
+		const reason = !code
+			? 'Missing code'
+			: !state
+				? 'Missing state'
+				: state !== storedState
+					? 'States do not match'
+					: 'Unknown reason';
 
 		log.warn({ reason }, 'Bad callback');
 		error(400);
@@ -34,7 +35,11 @@ export async function GET(event: RequestEvent): Promise<Response> {
 		const githubUser: GitHubUser = await githubUserRequest.json();
 
 		const existingUser = (
-			await db.select().from(users).where(eq(users.githubId, githubUser.id)).limit(1)
+			await db
+				.select()
+				.from(users)
+				.where(eq(users.githubId, githubUser.id))
+				.limit(1)
 		).at(0);
 
 		if (existingUser) {

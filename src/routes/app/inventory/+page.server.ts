@@ -1,9 +1,7 @@
-import { fail } from '@sveltejs/kit';
-import { eq } from 'drizzle-orm';
-
 import { db } from '$lib/server/db';
 import { items } from '$lib/server/schema';
-
+import { fail } from '@sveltejs/kit';
+import { eq } from 'drizzle-orm';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals }) => {

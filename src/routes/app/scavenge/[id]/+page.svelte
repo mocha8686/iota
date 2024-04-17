@@ -1,21 +1,21 @@
 <script lang="ts">
-	import locations from '$lib/locations.json';
-	import items from '$lib/items.json';
-	import { enhance } from '$app/forms';
+import { enhance } from '$app/forms';
+import items from '$lib/items.json';
+import locations from '$lib/locations.json';
 
-	const { data, form } = $props();
+const { data, form } = $props();
 
-	function formatTime(time: number): string {
-		const hours = Math.floor(time / 60 / 60);
-		const minutes = Math.floor((time % (60 * 60)) / 60);
-		const seconds = time % 60;
+function formatTime(time: number): string {
+	const hours = Math.floor(time / 60 / 60);
+	const minutes = Math.floor((time % (60 * 60)) / 60);
+	const seconds = time % 60;
 
-		const h = hours.toString();
-		const m = minutes.toString().padStart(2, '0');
-		const s = seconds.toString().padStart(2, '0');
+	const h = hours.toString();
+	const m = minutes.toString().padStart(2, '0');
+	const s = seconds.toString().padStart(2, '0');
 
-		return `${h}:${m}:${s}`;
-	}
+	return `${h}:${m}:${s}`;
+}
 </script>
 
 <h1>{locations[data.id].name}</h1>

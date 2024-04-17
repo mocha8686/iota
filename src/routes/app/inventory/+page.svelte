@@ -1,7 +1,7 @@
 <script lang="ts">
-	import items from '$lib/items.json';
+import items from '$lib/items.json';
 
-	const { data } = $props();
+const { data } = $props();
 </script>
 
 <h1>Inventory</h1>

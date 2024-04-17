@@ -15,8 +15,8 @@ const phi = (alpha: number, beta: number): number =>
 	Math.abs(alpha * Math.cos(radians)) + Math.abs(beta * Math.sin(radians));
 const numBoxes = (distance: number): number => Math.ceil(distance / boxSize);
 
-let oldWidth = 0,
-	oldHeight = 0;
+const oldWidth = 0;
+const oldHeight = 0;
 
 export function grid(): Promise<void> | undefined {
 	if (!window || !document) return;
@@ -37,9 +37,16 @@ export function grid(): Promise<void> | undefined {
 		opacity: 1,
 	};
 
-	const keyframes = [hidden, { ...visible, offset }, { ...visible, offset: 1 - offset }, hidden];
+	const keyframes = [
+		hidden,
+		{ ...visible, offset },
+		{ ...visible, offset: 1 - offset },
+		hidden,
+	];
 
-	for (const element of document.getElementsByClassName('grid-transition-box')) {
+	for (const element of document.getElementsByClassName(
+		'grid-transition-box',
+	)) {
 		const box = element as HTMLDivElement;
 		const boxDelay = Number(box.dataset.delay) ?? 0;
 
@@ -52,10 +59,14 @@ export function grid(): Promise<void> | undefined {
 		animation.play();
 	}
 
-	return new Promise((resolve) => setTimeout(resolve, (duration + boxAnimationSpacing) / 2));
+	return new Promise(resolve =>
+		setTimeout(resolve, (duration + boxAnimationSpacing) / 2),
+	);
 }
 
 function resizeGrid() {
+	if (!document) return;
+
 	if (!document.getElementById('grid-transition-grid')) {
 		const grid = document.createElement('div');
 		grid.id = 'grid-transition-grid';
@@ -69,6 +80,7 @@ function resizeGrid() {
 		document.body.appendChild(grid);
 	}
 
+	// biome-ignore lint/style/noNonNullAssertion: Existence of grid is checked above
 	const grid = document.getElementById('grid-transition-grid')!;
 	for (const elem of grid.children) {
 		grid.removeChild(elem);
