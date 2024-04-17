@@ -21,5 +21,13 @@
 			"jsxQuoteStyle": "single",
 			"arrowParentheses": "asNeeded"
 		}
-	}
+	},
+	"overrides": [
+		{
+			"include": ["*.svelte"],
+			"formatter": {
+				"enabled": false
+			}
+		}
+	]
 }

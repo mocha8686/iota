@@ -1,22 +1,22 @@
 <script lang="ts">
-import { Control, Field, FieldErrors, Label } from 'formsnap';
-import { superForm } from 'sveltekit-superforms';
-import { zodClient } from 'sveltekit-superforms/adapters';
-import { CreateCharacter } from './schema';
+	import { Control, Field, FieldErrors, Label } from "formsnap";
+	import { superForm } from "sveltekit-superforms";
+	import { zodClient } from "sveltekit-superforms/adapters";
+	import { CreateCharacter } from "./schema";
 
-const { data } = $props();
+	const { data } = $props();
 
-const createForm = superForm(data.createForm, {
-	validators: zodClient(CreateCharacter),
-});
-const {
-	form: createFormData,
-	message: createMessage,
-	enhance: createEnhance,
-} = createForm;
+	const createForm = superForm(data.createForm, {
+		validators: zodClient(CreateCharacter),
+	});
+	const {
+		form: createFormData,
+		message: createMessage,
+		enhance: createEnhance,
+	} = createForm;
 
-const deleteForm = superForm(data.deleteForm);
-const { message: deleteMessage, enhance: deleteEnhance } = deleteForm;
+	const deleteForm = superForm(data.deleteForm);
+	const { message: deleteMessage, enhance: deleteEnhance } = deleteForm;
 </script>
 
 <h1>Character</h1>
@@ -35,7 +35,9 @@ const { message: deleteMessage, enhance: deleteEnhance } = deleteForm;
 			{#each data.characters as character}
 				<li>
 					{character.name}
-					<button name="id" value={character.id}>Delete character</button>
+					<button name="id" value={character.id}>
+						Delete character
+					</button>
 				</li>
 			{/each}
 		</ul>

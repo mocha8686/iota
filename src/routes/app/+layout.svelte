@@ -1,20 +1,20 @@
 <script lang="ts">
-import { onNavigate } from '$app/navigation';
-import { grid } from '$lib/transition';
+	import { onNavigate } from '$app/navigation';
+	import { grid } from '$lib/transition';
 
-const { data, children } = $props();
+	const { data, children } = $props();
 
-let disabled = $state(false);
+	let disabled = $state(false);
 
-onNavigate(async ({ from, to }) => {
-	console.log({ from, to });
-	if (from && to && from.url.toString() === to.url.toString()) return;
-	disabled = true;
-	await grid();
-	return () => {
-		disabled = false;
-	};
-});
+	onNavigate(async ({ from, to }) => {
+		console.log({ from, to });
+		if (from && to && from.url.toString() === to.url.toString()) return;
+		disabled = true;
+		await grid();
+		return () => {
+			disabled = false;
+		};
+	});
 </script>
 
 <header>

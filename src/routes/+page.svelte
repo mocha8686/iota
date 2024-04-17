@@ -1,5 +1,6 @@
 <script lang="ts">
-const thing = $state('cheese');
+	// biome-ignore lint/style/useConst: Bound
+	let thing = $state("cheese");
 </script>
 
 <h1>Stinky {thing}</h1>
