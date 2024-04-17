@@ -8,7 +8,7 @@
 				"count": [6, 10]
 			}
 		],
-		"encounterChance": 0.3,
+		"encounterChance": 0.2,
 		"encounters": [
 			{
 				"weight": 1,

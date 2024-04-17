@@ -4,21 +4,24 @@ import { z } from 'zod';
 
 import itemsJson from '$lib/items.json';
 import locations from '$lib/locations.json';
-import { weightedRandom } from '$lib/rand';
+import { randomInt, weightedRandom } from '$lib/rand';
 import { db } from '$lib/server/db';
 import { log } from '$lib/server/log';
 import { items } from '$lib/server/schema';
 
 import type { Actions, PageServerLoad } from './$types';
+import { superValidate } from 'sveltekit-superforms';
+import { zod } from 'sveltekit-superforms/adapters';
+import { ScavengeRequest } from './schema';
+import { generateRandomEvent, type Event as LocationEvent } from '$lib/location';
+
+type Event = LocationEvent & { time: number };
 
 const LocationId = z.coerce.number().min(0);
 
-const randomInt = (min: number, max: number): number =>
-	Math.floor(Math.random() * (max - min + 1)) + min;
-
 export const load: PageServerLoad = async ({ params }) => {
 	const res = LocationId.safeParse(params.id);
-	if (!res.success) error(400, 'Invalid location');
+	if (!res.success) error(404, 'Invalid location');
 
 	return {
 		id: res.data,
@@ -26,49 +29,33 @@ export const load: PageServerLoad = async ({ params }) => {
 };
 
 export const actions = {
-	default: async ({ locals, params }) => {
+	default: async ({ locals, params, request }) => {
 		if (!locals.user) return fail(401);
 
 		const res = LocationId.safeParse(params.id);
 		if (!res.success) return fail(400, { message: 'Invalid location' });
 
-		const location = locations[res.data];
-		const encounter = Math.random() < location.encounterChance;
+		const form = await superValidate(request, zod(ScavengeRequest));
+		if (!form.valid) return fail(400, { message: 'Invalid time' });
 
-		if (encounter) {
-			const enemies = weightedRandom(
-				location.encounters.map((elem) => ({ item: elem.enemies, weight: elem.weight })),
-			);
-			return { type: 'encounter', enemies };
-		} else {
-			const data = weightedRandom(
-				location.items.map((elem) => ({
-					item: { id: elem.id, count: elem.count },
-					weight: elem.weight,
-				})),
-			);
+		const locationId = res.data;
+		const duration = form.data.minutes * 60;
 
-			const count =
-				typeof data.count === 'number' ? data.count : randomInt(data.count[0], data.count[1]);
+		let time = 0;
+		const events: Event[] = [];
 
-			const l = log.child({ userId: locals.user.id, itemId: data.id, count });
+		while (true) {
+			const timeToNextEvent = randomInt(1 * 60, 10 * 60);
+			time += timeToNextEvent;
+			if (time > duration) break;
 
-			try {
-				await db
-					.insert(items)
-					.values({ id: data.id, userId: locals.user.id, count })
-					.onConflictDoUpdate({
-						target: [items.userId, items.id],
-						set: { count: sql`${items.count} + ${count}` },
-					});
-				l.info('Added items to inventory');
-			} catch (err) {
-				l.error({ type: 'db', err }, 'Database error during scavenge');
-				return fail(500, { message: 'Failed to save items.' });
+			const event = generateRandomEvent(locationId);
+			events.push({ ...event, time });
+			if (event.type === 'encounter') {
+				break;
 			}
-
-			const item = itemsJson[data.id];
-			return { type: 'item', item: item.name, count };
 		}
+
+		return { events };
 	},
 } satisfies Actions;
