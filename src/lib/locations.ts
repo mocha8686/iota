@@ -3,11 +3,25 @@ import { randomIntInclusive, weightedRandom } from './rand';
 import type { CountedStub } from './types';
 
 export type Event = ItemEvent | EncounterEvent;
-
 export type ItemEvent = { type: 'item' } & CountedStub;
 export interface EncounterEvent {
 	type: 'encounter';
 	enemies: CountedStub[];
+}
+
+export interface Timed {
+	time: number;
+};
+export type TimedItemEvent = ItemEvent & Timed;
+export type TimedEncounterEvent = EncounterEvent & Timed;
+export type TimedEvent = TimedItemEvent | TimedEncounterEvent;
+
+export function isItemEvent(event: TimedEvent): event is TimedItemEvent {
+	return event.type === 'item';
+}
+
+export function isEncounterEvent(event: TimedEvent): event is TimedEncounterEvent {
+	return event.type === 'encounter';
 }
 
 export function generateRandomEvent(id: number): Event {

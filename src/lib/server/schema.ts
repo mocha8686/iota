@@ -1,3 +1,4 @@
+import type { TimedEvent } from '$lib/locations';
 import {
 	integer,
 	primaryKey,
@@ -45,6 +46,7 @@ export const expeditions = sqliteTable('expeditions', {
 	userId: text('user_id')
 		.primaryKey()
 		.references(() => users.id),
+	locationId: integer('location_id').notNull(),
 	time: integer('time').notNull(),
-	events: text('events', { mode: 'json' }).notNull(),
+	events: text('events', { mode: 'json' }).notNull().$type<TimedEvent[]>(),
 });

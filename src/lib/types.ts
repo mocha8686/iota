@@ -1,23 +1,22 @@
-export interface CountedStub {
+export interface Stub {
 	id: number;
-	count: [number, number] | number;
 }
 
-export interface WeightedStub {
-	id: number;
-	weight: number;
-}
+export type CountedStub = Stub & {count: number};
+export type RangedStub = Stub & {count: [number, number]};
+export type RangedCountedStub = CountedStub | RangedStub;
 
-export type CountedWeightedStub = CountedStub & WeightedStub;
+export type WeightedStub = Stub & {weight: number};
+export type DropStub = RangedCountedStub & WeightedStub;
 
 export interface Encounter {
 	weight: number;
-	enemies: CountedStub[];
+	enemies: RangedCountedStub[];
 }
 
 export interface Location {
 	name: string;
-	items: CountedWeightedStub[];
+	items: DropStub[];
 	encounterChance: number;
 	encounters: Encounter[];
 }
