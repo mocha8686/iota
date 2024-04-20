@@ -9,6 +9,7 @@ import { z } from 'zod';
 import type { Actions, PageServerLoad } from './$types';
 import { addToInventory } from '$lib/server/items';
 import { isItemEvent } from '$lib/locations';
+	import locations from "$lib/locations.json";
 
 const LocationId = z.coerce.number().min(0);
 
@@ -16,7 +17,8 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 	if (!locals.user) redirect(302, '/api/login');
 
 	const res = LocationId.safeParse(params.id);
-	if (!res.success) error(404, 'Invalid location');
+	const location = res.success && locations.at(res.data);
+	if (!location) error(404, 'Invalid location');
 
 	const expedition = (
 		await db
@@ -27,7 +29,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 	).at(0);
 
 	return {
-		id: res.data,
+		location: location.name,
 		expedition,
 	};
 };

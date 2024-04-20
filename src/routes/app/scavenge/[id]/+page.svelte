@@ -2,7 +2,6 @@
 	import { enhance } from "$app/forms";
 	import items from "$lib/items.json";
 	import { isItemEvent, isEncounterEvent } from "$lib/locations";
-	import locations from "$lib/locations.json";
 
 	const { data, form } = $props();
 
@@ -21,7 +20,7 @@
 	}
 </script>
 
-<h1>{locations[data.id].name}</h1>
+<h1>{data.location}</h1>
 
 <form method="POST" use:enhance>
 	<button formaction="?/continue">Scavenge</button>
