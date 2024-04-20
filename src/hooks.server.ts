@@ -1,6 +1,6 @@
 import { lucia } from '$lib/server/auth';
 import { log } from '$lib/server/log';
-import { type Handle, error } from '@sveltejs/kit';
+import { type Handle, error, type HandleServerError } from '@sveltejs/kit';
 import { verifyRequestOrigin } from 'lucia';
 
 export const handle: Handle = async ({ event, resolve }) => {
@@ -50,4 +50,15 @@ export const handle: Handle = async ({ event, resolve }) => {
 	event.locals.user = user;
 	event.locals.session = session;
 	return resolve(event);
+};
+
+export const handleError: HandleServerError = async ({
+	error,
+	event,
+	status,
+	message,
+}) => {
+	const errorId = crypto.randomUUID();
+	log.error({ errorId, error, event, status, message }, 'Server error');
+	return { message: 'Whoops!', errorId };
 };
