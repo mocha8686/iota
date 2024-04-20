@@ -1,7 +1,8 @@
 import { lucia } from '$lib/server/auth';
 import { type RequestEvent, redirect } from '@sveltejs/kit';
+import type { RequestHandler } from './$types';
 
-export async function GET(event: RequestEvent): Promise<Response> {
+export const GET: RequestHandler = async (event: RequestEvent) => {
 	if (event.locals.session) {
 		await lucia.invalidateSession(event.locals.session.id);
 		const sessionCookie = lucia.createBlankSessionCookie();

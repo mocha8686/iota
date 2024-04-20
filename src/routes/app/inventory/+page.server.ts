@@ -1,11 +1,11 @@
 import { db } from '$lib/server/db';
 import { items } from '$lib/server/schema';
-import { fail } from '@sveltejs/kit';
+import { redirect } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals }) => {
-	if (!locals.user) return fail(401);
+	if (!locals.user) redirect(302, '/api/login');
 
 	const dbRes = await db
 		.select({ id: items.id, count: items.count })

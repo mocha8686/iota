@@ -3,7 +3,7 @@ import { randomInt } from '$lib/rand';
 import { db } from '$lib/server/db';
 import { log } from '$lib/server/log';
 import { expeditions } from '$lib/server/schema';
-import { error, fail } from '@sveltejs/kit';
+import { error, fail, redirect } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 import type { Actions, PageServerLoad } from './$types';
@@ -13,7 +13,7 @@ import { isItemEvent } from '$lib/locations';
 const LocationId = z.coerce.number().min(0);
 
 export const load: PageServerLoad = async ({ locals, params }) => {
-	if (!locals.user) error(401);
+	if (!locals.user) redirect(302, '/api/login');
 
 	const res = LocationId.safeParse(params.id);
 	if (!res.success) error(404, 'Invalid location');

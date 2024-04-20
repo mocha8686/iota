@@ -2,8 +2,9 @@ import { dev } from '$app/environment';
 import { github } from '$lib/server/auth';
 import { type RequestEvent, redirect } from '@sveltejs/kit';
 import { generateState } from 'arctic';
+import type { RequestHandler } from './$types';
 
-export async function GET(event: RequestEvent): Promise<Response> {
+export const GET: RequestHandler = async (event: RequestEvent) => {
 	const state = generateState();
 	const url = await github.createAuthorizationURL(state);
 
@@ -16,4 +17,4 @@ export async function GET(event: RequestEvent): Promise<Response> {
 	});
 
 	redirect(302, url);
-}
+};

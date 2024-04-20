@@ -6,8 +6,9 @@ import { type RequestEvent, error, redirect } from '@sveltejs/kit';
 import { OAuth2RequestError } from 'arctic';
 import { eq } from 'drizzle-orm';
 import { generateId } from 'lucia';
+import type { RequestHandler } from './$types';
 
-export async function GET(event: RequestEvent): Promise<Response> {
+export const GET: RequestHandler = async (event: RequestEvent) => {
 	const code = event.url.searchParams.get('code');
 	const state = event.url.searchParams.get('state');
 	const storedState = event.cookies.get('github_oauth_state') ?? null;
