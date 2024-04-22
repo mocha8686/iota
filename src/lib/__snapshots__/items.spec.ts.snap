@@ -2,14 +2,8 @@
 
 exports[`maintains item order 1`] = `
 [
-  {
-    "name": "Scrap metal",
-  },
-  {
-    "name": "Aquaite",
-  },
-  {
-    "name": "Wire",
-  },
+  "Scrap metal",
+  "Aquaite",
+  "Wire",
 ]
 `;

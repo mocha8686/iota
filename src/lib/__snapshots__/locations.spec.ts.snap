@@ -2,65 +2,8 @@
 
 exports[`maintains location order 1`] = `
 [
-  {
-    "encounters": [
-      {
-        "enemies": [
-          {
-            "count": 2,
-            "id": 0,
-          },
-        ],
-        "weight": 1,
-      },
-    ],
-    "items": [
-      {
-        "id": 2,
-        "weight": 1,
-      },
-    ],
-    "name": "Ruins",
-  },
-  {
-    "encounters": [
-      {
-        "enemies": [
-          {
-            "count": 6,
-            "id": 1,
-          },
-        ],
-        "weight": 1,
-      },
-    ],
-    "items": [
-      {
-        "id": 1,
-        "weight": 1,
-      },
-    ],
-    "name": "Depths",
-  },
-  {
-    "encounters": [
-      {
-        "enemies": [
-          {
-            "count": 1,
-            "id": 2,
-          },
-        ],
-        "weight": 1,
-      },
-    ],
-    "items": [
-      {
-        "id": 0,
-        "weight": 1,
-      },
-    ],
-    "name": "Alleys",
-  },
+  "Ruins",
+  "Depths",
+  "Alleys",
 ]
 `;

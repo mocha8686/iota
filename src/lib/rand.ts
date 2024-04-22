@@ -5,8 +5,7 @@ export interface WeightedItem<T> {
 
 export function weightedRandom<T>(items: WeightedItem<T>[]): T {
 	const weights = items.reduce<number[]>(
-		(acc, val) =>
-			acc.toSpliced(-1, 0, val.weight + (acc.at(acc.length - 1) ?? 0)),
+		(acc, val) => acc.toSpliced(Infinity, 0, val.weight + (acc.at(-1) ?? 0)),
 		[],
 	);
 	const random = Math.random() * weights[weights.length - 1];
