@@ -64,20 +64,18 @@ export const actions = {
 		}
 
 		try {
-			const res = (
-				await db
-					.delete(characters)
-					.where(eq(characters.id, deleteForm.data.id))
-					.returning({ characterId: characters.id })
-			).at(0);
+			const [character] = await db
+				.delete(characters)
+				.where(eq(characters.id, deleteForm.data.id))
+				.returning({ characterId: characters.id });
 
-			if (!res) {
+			if (!character) {
 				return message(deleteForm, 'Character does not exist.', {
 					status: 400,
 				});
 			}
 
-			l.info({ characterId: res.characterId }, 'Deleted character');
+			l.info({ characterId: character.characterId }, 'Deleted character');
 		} catch (err) {
 			l.error({ type: 'db', err }, 'Database error during character creation');
 			return message(deleteForm, 'Failed to delete character.', {

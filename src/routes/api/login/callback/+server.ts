@@ -35,13 +35,11 @@ export const GET: RequestHandler = async (event: RequestEvent) => {
 		});
 		const githubUser: GitHubUser = await githubUserRequest.json();
 
-		const existingUser = (
-			await db
-				.select()
-				.from(users)
-				.where(eq(users.githubId, githubUser.id))
-				.limit(1)
-		).at(0);
+		const [existingUser] = await db
+			.select()
+			.from(users)
+			.where(eq(users.githubId, githubUser.id))
+			.limit(1);
 
 		if (existingUser) {
 			const session = await lucia.createSession(existingUser.id, {});
@@ -71,13 +69,12 @@ export const GET: RequestHandler = async (event: RequestEvent) => {
 			log.warn({ error: e }, 'OAuth error');
 			error(400);
 		} else {
-			log.error({ error: e }, 'Error during login callback');
-			error(500);
+			throw e;
 		}
 	}
 
 	redirect(302, '/app');
-}
+};
 
 interface GitHubUser {
 	id: number;

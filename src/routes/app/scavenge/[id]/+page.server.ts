@@ -9,7 +9,7 @@ import { z } from 'zod';
 import type { Actions, PageServerLoad } from './$types';
 import { addToInventory } from '$lib/server/items';
 import { isItemEvent } from '$lib/locations';
-	import locations from "$lib/locations.json";
+import locations from '$lib/locations.json';
 
 const LocationId = z.coerce.number().min(0);
 
@@ -20,13 +20,11 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 	const location = res.success && locations.at(res.data);
 	if (!location) error(404, 'Invalid location');
 
-	const expedition = (
-		await db
-			.select({ time: expeditions.time, events: expeditions.events })
-			.from(expeditions)
-			.where(eq(expeditions.userId, locals.user.id))
-			.limit(1)
-	).at(0);
+	const [expedition] = await db
+		.select({ time: expeditions.time, events: expeditions.events })
+		.from(expeditions)
+		.where(eq(expeditions.userId, locals.user.id))
+		.limit(1);
 
 	return {
 		location: location.name,
@@ -44,15 +42,12 @@ export const actions = {
 		if (!res.success) return fail(400, { message: 'Invalid location' });
 		const locationId = res.data;
 
-		// TODO: try/catch
 		// TODO: transactions
-		const expedition = (
-			await db
-				.select({ time: expeditions.time, events: expeditions.events })
-				.from(expeditions)
-				.where(eq(expeditions.userId, locals.user.id))
-				.limit(1)
-		).at(0);
+		const [expedition] = await db
+			.select({ time: expeditions.time, events: expeditions.events })
+			.from(expeditions)
+			.where(eq(expeditions.userId, locals.user.id))
+			.limit(1);
 
 		let time = expedition?.events.at(-1)?.time ?? 0;
 		const events: TimedEvent[] = expedition?.events ?? [];
@@ -68,19 +63,14 @@ export const actions = {
 			}
 		}
 
-		try {
-			await db
-				.insert(expeditions)
-				.values({ userId: locals.user.id, locationId, time, events })
-				.onConflictDoUpdate({
-					target: expeditions.userId,
-					set: { time, events },
-				});
-			l.info('Saved expedition');
-		} catch (err) {
-			l.error({ type: 'db', err }, 'Database error during expedition');
-			return fail(500);
-		}
+		await db
+			.insert(expeditions)
+			.values({ userId: locals.user.id, locationId, time, events })
+			.onConflictDoUpdate({
+				target: expeditions.userId,
+				set: { time, events },
+			});
+		l.info('Saved expedition');
 
 		return { events };
 	},
@@ -88,14 +78,12 @@ export const actions = {
 		if (!locals.user) return fail(401);
 
 		const l = log.child({ userId: locals.user.id });
+		const [expedition] = await db
+			.select({ events: expeditions.events })
+			.from(expeditions)
+			.where(eq(expeditions.userId, locals.user.id))
+			.limit(1);
 
-		const expedition = (
-			await db
-				.select({ events: expeditions.events })
-				.from(expeditions)
-				.where(eq(expeditions.userId, locals.user.id))
-				.limit(1)
-		).at(0);
 		if (!expedition) return fail(404, { message: 'Expedition not found' });
 
 		const itemEvents = expedition.events
