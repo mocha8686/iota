@@ -9,8 +9,12 @@ import { zod } from 'sveltekit-superforms/adapters';
 import type { Actions, PageServerLoad } from './$types';
 import { CreateCharacter, DeleteCharacter } from './schema';
 
-export const load: PageServerLoad = async ({ locals }) => {
-	if (!locals.user) redirect(302, '/api/login');
+export const load: PageServerLoad = async ({ locals, url }) => {
+	if (!locals.user) {
+		const loginUrl = new URL('/api/login', url);
+		loginUrl.searchParams.set('redirect', url.pathname);
+		redirect(302, loginUrl);
+	}
 
 	const createForm = await superValidate(zod(CreateCharacter));
 	const deleteForm = await superValidate(zod(DeleteCharacter));
@@ -28,8 +32,12 @@ export const load: PageServerLoad = async ({ locals }) => {
 };
 
 export const actions = {
-	create: async ({ locals, request }) => {
-		if (!locals.user) return fail(401);
+	create: async ({ locals, request, url }) => {
+		if (!locals.user) {
+			const loginUrl = new URL('/api/login', url);
+			loginUrl.searchParams.set('redirect', url.pathname);
+			redirect(302, loginUrl);
+		}
 
 		const l = log.child({ userId: locals.user.id });
 		const createForm = await superValidate(request, zod(CreateCharacter));
@@ -53,8 +61,12 @@ export const actions = {
 
 		return { createForm };
 	},
-	delete: async ({ locals, request }) => {
-		if (!locals.user) return fail(401);
+	delete: async ({ locals, request, url }) => {
+		if (!locals.user) {
+			const loginUrl = new URL('/api/login', url);
+			loginUrl.searchParams.set('redirect', url.pathname);
+			redirect(302, loginUrl);
+		}
 
 		const l = log.child({ userId: locals.user.id });
 		const deleteForm = await superValidate(request, zod(DeleteCharacter));

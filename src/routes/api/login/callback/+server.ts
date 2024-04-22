@@ -2,16 +2,17 @@ import { github, lucia } from '$lib/server/auth';
 import { db } from '$lib/server/db';
 import { log } from '$lib/server/log';
 import { users } from '$lib/server/schema';
-import { type RequestEvent, error, redirect } from '@sveltejs/kit';
+import { error, redirect } from '@sveltejs/kit';
 import { OAuth2RequestError } from 'arctic';
 import { eq } from 'drizzle-orm';
 import { generateId } from 'lucia';
 import type { RequestHandler } from './$types';
 
-export const GET: RequestHandler = async (event: RequestEvent) => {
-	const code = event.url.searchParams.get('code');
-	const state = event.url.searchParams.get('state');
-	const storedState = event.cookies.get('github_oauth_state') ?? null;
+export const GET: RequestHandler = async ({ url, cookies }) => {
+	const code = url.searchParams.get('code');
+	const state = url.searchParams.get('state');
+	const redirectPath = cookies.get('redirect');
+	const storedState = cookies.get('github_oauth_state') ?? null;
 
 	if (!code || !state || !storedState || state !== storedState) {
 		const reason = !code
@@ -44,7 +45,7 @@ export const GET: RequestHandler = async (event: RequestEvent) => {
 		if (existingUser) {
 			const session = await lucia.createSession(existingUser.id, {});
 			const sessionCookie = lucia.createSessionCookie(session.id);
-			event.cookies.set(sessionCookie.name, sessionCookie.value, {
+			cookies.set(sessionCookie.name, sessionCookie.value, {
 				path: '.',
 				...sessionCookie.attributes,
 			});
@@ -59,7 +60,7 @@ export const GET: RequestHandler = async (event: RequestEvent) => {
 
 			const session = await lucia.createSession(userId, {});
 			const sessionCookie = lucia.createSessionCookie(session.id);
-			event.cookies.set(sessionCookie.name, sessionCookie.value, {
+			cookies.set(sessionCookie.name, sessionCookie.value, {
 				path: '.',
 				...sessionCookie.attributes,
 			});
@@ -73,7 +74,7 @@ export const GET: RequestHandler = async (event: RequestEvent) => {
 		}
 	}
 
-	redirect(302, '/app');
+	redirect(302, redirectPath ?? '/app');
 };
 
 interface GitHubUser {

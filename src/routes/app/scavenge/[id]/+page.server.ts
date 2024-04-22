@@ -13,8 +13,12 @@ import locations from '$lib/locations.json';
 
 const LocationId = z.coerce.number().min(0);
 
-export const load: PageServerLoad = async ({ locals, params }) => {
-	if (!locals.user) redirect(302, '/api/login');
+export const load: PageServerLoad = async ({ locals, params, url }) => {
+	if (!locals.user) {
+		const loginUrl = new URL('/api/login', url);
+		loginUrl.searchParams.set('redirect', url.pathname);
+		redirect(302, loginUrl);
+	}
 
 	const res = LocationId.safeParse(params.id);
 	const location = res.success && locations.at(res.data);
@@ -33,8 +37,12 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 };
 
 export const actions = {
-	continue: async ({ locals, params }) => {
-		if (!locals.user) return fail(401);
+	continue: async ({ locals, params, url }) => {
+		if (!locals.user) {
+			const loginUrl = new URL('/api/login', url);
+			loginUrl.searchParams.set('redirect', url.pathname);
+			redirect(302, loginUrl);
+		}
 
 		const l = log.child({ userId: locals.user.id });
 
@@ -74,8 +82,12 @@ export const actions = {
 
 		return { events };
 	},
-	return: async ({ locals }) => {
-		if (!locals.user) return fail(401);
+	return: async ({ locals, url }) => {
+		if (!locals.user) {
+			const loginUrl = new URL('/api/login', url);
+			loginUrl.searchParams.set('redirect', url.pathname);
+			redirect(302, loginUrl);
+		}
 
 		const l = log.child({ userId: locals.user.id });
 		const [expedition] = await db

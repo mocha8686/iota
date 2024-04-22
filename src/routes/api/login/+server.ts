@@ -1,20 +1,22 @@
-import { dev } from '$app/environment';
 import { github } from '$lib/server/auth';
-import { type RequestEvent, redirect } from '@sveltejs/kit';
+import { redirect } from '@sveltejs/kit';
 import { generateState } from 'arctic';
 import type { RequestHandler } from './$types';
 
-export const GET: RequestHandler = async (event: RequestEvent) => {
+export const GET: RequestHandler = async ({ cookies, url }) => {
 	const state = generateState();
-	const url = await github.createAuthorizationURL(state);
+	const githubUrl = await github.createAuthorizationURL(state);
 
-	event.cookies.set('github_oauth_state', state, {
+	cookies.set('github_oauth_state', state, {
 		path: '/',
-		secure: !dev,
-		httpOnly: true,
 		maxAge: 60 * 10,
 		sameSite: 'lax',
 	});
 
-	redirect(302, url);
+	const redirectPath = url.searchParams.get('redirect');
+	if (redirectPath) {
+		cookies.set('redirect', redirectPath, { path: '/api/login/callback' });
+	}
+
+	redirect(302, githubUrl);
 };

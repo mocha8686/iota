@@ -10,7 +10,11 @@ const generateScavengePathname = (id: number | undefined) =>
 	id ? `/app/scavenge/${id}` : undefined;
 
 export const load: LayoutServerLoad = async ({ locals, url }) => {
-	if (!locals.user) redirect(302, '/api/login');
+	if (!locals.user) {
+		const loginUrl = new URL('/api/login', url);
+		loginUrl.searchParams.set('redirect', url.pathname);
+		redirect(302, loginUrl);
+	};
 
 	const [character] = await db
 		.select({ name: characters.name, id: characters.id })
