@@ -7,11 +7,11 @@ import {
 	GITHUB_CLIENT_SECRET,
 } from '$env/static/private';
 import { DrizzleSQLiteAdapter } from '@lucia-auth/adapter-drizzle';
+import { type RequestEvent, redirect } from '@sveltejs/kit';
 import { Discord, GitHub, type OAuth2Provider } from 'arctic';
 import { Lucia } from 'lucia';
 import { db } from './db';
 import { sessions, users } from './schema';
-import { redirect, type RequestEvent } from '@sveltejs/kit';
 
 export const github = new GitHub(GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET);
 export const discord = new Discord(

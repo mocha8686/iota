@@ -1,8 +1,8 @@
+import { checkUser } from '$lib/server/auth';
 import { db } from '$lib/server/db';
 import { items } from '$lib/server/schema';
 import { eq } from 'drizzle-orm';
 import type { PageServerLoad } from './$types';
-import { checkUser } from '$lib/server/auth';
 
 export const load: PageServerLoad = async event => {
 	const user = checkUser(event);

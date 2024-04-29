@@ -49,13 +49,11 @@ export const GET: RequestHandler = async ({ url, cookies, params }) => {
 		const link = cookies.get('link');
 		if (link) {
 			if (!existingAccount) {
-				await db
-					.insert(oauthAccounts)
-					.values({
-						providerId: params.provider,
-						providerUserId: user.id,
-						userId: link,
-					});
+				await db.insert(oauthAccounts).values({
+					providerId: params.provider,
+					providerUserId: user.id,
+					userId: link,
+				});
 			}
 		} else {
 			if (existingAccount) {

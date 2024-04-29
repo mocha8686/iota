@@ -1,3 +1,4 @@
+import { checkUser } from '$lib/server/auth';
 import { db } from '$lib/server/db';
 import { log } from '$lib/server/log';
 import { characters } from '$lib/server/schema';
@@ -8,7 +9,6 @@ import { message, superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import type { Actions, PageServerLoad } from './$types';
 import { CreateCharacter, DeleteCharacter } from './schema';
-import { checkUser } from '$lib/server/auth';
 
 export const load: PageServerLoad = async event => {
 	const user = checkUser(event);

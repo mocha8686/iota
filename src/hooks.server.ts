@@ -1,6 +1,6 @@
 import { lucia } from '$lib/server/auth';
 import { log } from '$lib/server/log';
-import { type Handle, error, type HandleServerError } from '@sveltejs/kit';
+import { type Handle, type HandleServerError, error } from '@sveltejs/kit';
 import { verifyRequestOrigin } from 'lucia';
 
 export const handle: Handle = async ({ event, resolve }) => {

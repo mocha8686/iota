@@ -12,4 +12,4 @@ export const GET: RequestHandler = async (event: RequestEvent) => {
 		});
 	}
 	redirect(302, '/');
-}
+};

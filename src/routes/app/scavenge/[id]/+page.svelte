@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { enhance } from "$app/forms";
 	import items from "$lib/items.json";
-	import { isItemEvent, isEncounterEvent } from "$lib/locations";
+	import { isEncounterEvent, isItemEvent } from "$lib/locations";
 
 	const { data, form } = $props();
 

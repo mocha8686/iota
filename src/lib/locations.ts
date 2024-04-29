@@ -11,7 +11,7 @@ export interface EncounterEvent {
 
 export interface Timed {
 	time: number;
-};
+}
 export type TimedItemEvent = ItemEvent & Timed;
 export type TimedEncounterEvent = EncounterEvent & Timed;
 export type TimedEvent = TimedItemEvent | TimedEncounterEvent;
@@ -20,7 +20,9 @@ export function isItemEvent(event: TimedEvent): event is TimedItemEvent {
 	return event.type === 'item';
 }
 
-export function isEncounterEvent(event: TimedEvent): event is TimedEncounterEvent {
+export function isEncounterEvent(
+	event: TimedEvent,
+): event is TimedEncounterEvent {
 	return event.type === 'encounter';
 }
 
