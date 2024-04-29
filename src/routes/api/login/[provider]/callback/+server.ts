@@ -1,49 +1,54 @@
-import { github, lucia } from '$lib/server/auth';
+import { PROVIDER_MAP, lucia } from '$lib/server/auth';
 import { db } from '$lib/server/db';
 import { log } from '$lib/server/log';
-import { users } from '$lib/server/schema';
+import { oauthAccounts, users } from '$lib/server/schema';
 import { error, redirect } from '@sveltejs/kit';
 import { OAuth2RequestError } from 'arctic';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { generateId } from 'lucia';
 import type { RequestHandler } from './$types';
 
-export const GET: RequestHandler = async ({ url, cookies }) => {
+export const GET: RequestHandler = async ({ url, cookies, params }) => {
+	const provider = PROVIDER_MAP.get(params.provider);
+	if (!provider) error(404);
+	const { validateAuthorizationCode, userInfo } = provider;
+
 	const code = url.searchParams.get('code');
 	const state = url.searchParams.get('state');
 	const redirectPath = cookies.get('redirect');
-	const storedState = cookies.get('github_oauth_state') ?? null;
+	const storedState = cookies.get('oauth_state');
 
 	if (!code || !state || !storedState || state !== storedState) {
 		const reason = !code
 			? 'Missing code'
 			: !state
 				? 'Missing state'
-				: state !== storedState
-					? 'States do not match'
-					: 'Unknown reason';
+				: !storedState
+					? 'Missing stored state'
+					: state !== storedState
+						? 'States do not match'
+						: 'Unknown reason';
 
 		log.warn({ reason }, 'Bad callback');
 		error(400);
 	}
 
 	try {
-		const { accessToken } = await github.validateAuthorizationCode(code);
-		const githubUserRequest = await fetch('https://api.github.com/user', {
-			headers: {
-				Authorization: `Bearer ${accessToken}`,
-			},
-		});
-		const githubUser: GitHubUser = await githubUserRequest.json();
+		const { accessToken } = await validateAuthorizationCode(code);
+		const user = await userInfo(accessToken);
 
-		const [existingUser] = await db
+		const [existingAccount] = await db
 			.select()
-			.from(users)
-			.where(eq(users.githubId, githubUser.id))
-			.limit(1);
+			.from(oauthAccounts)
+			.where(
+				and(
+					eq(oauthAccounts.providerId, params.provider),
+					eq(oauthAccounts.providerUserId, user.id),
+				),
+			);
 
-		if (existingUser) {
-			const session = await lucia.createSession(existingUser.id, {});
+		if (existingAccount) {
+			const session = await lucia.createSession(existingAccount.userId, {});
 			const sessionCookie = lucia.createSessionCookie(session.id);
 			cookies.set(sessionCookie.name, sessionCookie.value, {
 				path: '.',
@@ -52,10 +57,17 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
 		} else {
 			const userId = generateId(15);
 
-			await db.insert(users).values({
-				id: userId,
-				githubId: githubUser.id,
-				username: githubUser.login,
+			await db.transaction(async tx => {
+				await tx.insert(users).values({
+					id: userId,
+					username: user.username,
+					avatar: user.avatar,
+				});
+				await tx.insert(oauthAccounts).values({
+					providerId: params.provider,
+					providerUserId: user.id,
+					userId,
+				});
 			});
 
 			const session = await lucia.createSession(userId, {});
@@ -76,8 +88,3 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
 
 	redirect(302, redirectPath ?? '/app');
 };
-
-interface GitHubUser {
-	id: number;
-	login: string;
-}

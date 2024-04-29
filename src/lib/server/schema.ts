@@ -8,9 +8,23 @@ import {
 
 export const users = sqliteTable('users', {
 	id: text('id').notNull().primaryKey(),
-	githubId: integer('github_id').unique().notNull(),
 	username: text('username').notNull(),
+	avatar: text('avatar'),
 });
+
+export const oauthAccounts = sqliteTable(
+	'oauth_accounts',
+	{
+		providerId: text('provider_id').notNull(),
+		providerUserId: text('provider_user_id').notNull(),
+		userId: text('user_id')
+			.notNull()
+			.references(() => users.id),
+	},
+	t => ({
+		pk: primaryKey({ columns: [t.providerId, t.providerUserId] }),
+	}),
+);
 
 export const sessions = sqliteTable('sessions', {
 	id: text('id').notNull().primaryKey(),

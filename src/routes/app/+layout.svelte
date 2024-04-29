@@ -25,7 +25,12 @@
 		<a href="/app/inventory">Inventory</a>
 		<a href="/api/logout">Logout</a>
 	</nav>
-	<p>{data.username}</p>
+	<div class="user">
+		<p>{data.username}</p>
+		{#if data.avatar}
+			<img class="avatar" src={data.avatar} alt="User avatar">
+		{/if}
+	</div>
 </header>
 
 {#key data.pathname}
@@ -45,6 +50,18 @@
 		display: flex;
 		flex-direction: row;
 		gap: 0.5em;
+	}
+
+	.user {
+		display: flex;
+		flex-direction: row;
+		gap: .5em;
+	}
+
+	.avatar {
+		aspect-ratio: 1;
+		width: 4em;
+		border-radius: 100%;
 	}
 
 	.disabled {

@@ -36,8 +36,9 @@ export const load: LayoutServerLoad = async ({ locals, url }) => {
 		redirect(302, scavengePathname);
 
 	return {
-		username: locals.user.username,
-		pathname: url.pathname,
+		username: user.username,
+		pathname,
+		avatar: user.avatar,
 		character,
 	};
 };
