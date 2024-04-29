@@ -3,31 +3,28 @@ import { randomInt } from '$lib/rand';
 import { db } from '$lib/server/db';
 import { log } from '$lib/server/log';
 import { expeditions } from '$lib/server/schema';
-import { error, fail, redirect } from '@sveltejs/kit';
+import { error, fail } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 import type { Actions, PageServerLoad } from './$types';
 import { addToInventory } from '$lib/server/items';
 import { isItemEvent } from '$lib/locations';
 import locations from '$lib/locations.json';
+import { checkUser } from '$lib/server/auth';
 
 const LocationId = z.coerce.number().min(0);
 
-export const load: PageServerLoad = async ({ locals, params, url }) => {
-	if (!locals.user) {
-		const loginUrl = new URL('/api/login', url);
-		loginUrl.searchParams.set('redirect', url.pathname);
-		redirect(302, loginUrl);
-	}
+export const load: PageServerLoad = async event => {
+	const user = checkUser(event);
 
-	const res = LocationId.safeParse(params.id);
+	const res = LocationId.safeParse(event.params.id);
 	const location = res.success && locations.at(res.data);
 	if (!location) error(404, 'Invalid location');
 
 	const [expedition] = await db
 		.select({ time: expeditions.time, events: expeditions.events })
 		.from(expeditions)
-		.where(eq(expeditions.userId, locals.user.id))
+		.where(eq(expeditions.userId, user.id))
 		.limit(1);
 
 	return {
@@ -37,16 +34,12 @@ export const load: PageServerLoad = async ({ locals, params, url }) => {
 };
 
 export const actions = {
-	continue: async ({ locals, params, url }) => {
-		if (!locals.user) {
-			const loginUrl = new URL('/api/login', url);
-			loginUrl.searchParams.set('redirect', url.pathname);
-			redirect(302, loginUrl);
-		}
+	continue: async event => {
+		const user = checkUser(event);
 
-		const l = log.child({ userId: locals.user.id });
+		const l = log.child({ userId: user.id });
 
-		const res = LocationId.safeParse(params.id);
+		const res = LocationId.safeParse(event.params.id);
 		if (!res.success) return fail(400, { message: 'Invalid location' });
 		const locationId = res.data;
 
@@ -54,7 +47,7 @@ export const actions = {
 		const [expedition] = await db
 			.select({ time: expeditions.time, events: expeditions.events })
 			.from(expeditions)
-			.where(eq(expeditions.userId, locals.user.id))
+			.where(eq(expeditions.userId, user.id))
 			.limit(1);
 
 		let time = expedition?.events.at(-1)?.time ?? 0;
@@ -73,7 +66,7 @@ export const actions = {
 
 		await db
 			.insert(expeditions)
-			.values({ userId: locals.user.id, locationId, time, events })
+			.values({ userId: user.id, locationId, time, events })
 			.onConflictDoUpdate({
 				target: expeditions.userId,
 				set: { time, events },
@@ -82,18 +75,13 @@ export const actions = {
 
 		return { events };
 	},
-	return: async ({ locals, url }) => {
-		if (!locals.user) {
-			const loginUrl = new URL('/api/login', url);
-			loginUrl.searchParams.set('redirect', url.pathname);
-			redirect(302, loginUrl);
-		}
+	return: async event => {
+		const user = checkUser(event);
 
-		const l = log.child({ userId: locals.user.id });
 		const [expedition] = await db
 			.select({ events: expeditions.events })
 			.from(expeditions)
-			.where(eq(expeditions.userId, locals.user.id))
+			.where(eq(expeditions.userId, user.id))
 			.limit(1);
 
 		if (!expedition) return fail(404, { message: 'Expedition not found' });
@@ -101,8 +89,8 @@ export const actions = {
 		const itemEvents = expedition.events
 			.filter(isItemEvent)
 			.map(event => ({ id: event.id, count: event.count }));
-		await addToInventory(locals.user.id, itemEvents);
+		await addToInventory(user.id, itemEvents);
 
-		await db.delete(expeditions).where(eq(expeditions.userId, locals.user.id));
+		await db.delete(expeditions).where(eq(expeditions.userId, user.id));
 	},
 } satisfies Actions;

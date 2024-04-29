@@ -8,13 +8,10 @@ import { message, superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import type { Actions, PageServerLoad } from './$types';
 import { CreateCharacter, DeleteCharacter } from './schema';
+import { checkUser } from '$lib/server/auth';
 
-export const load: PageServerLoad = async ({ locals, url }) => {
-	if (!locals.user) {
-		const loginUrl = new URL('/api/login', url);
-		loginUrl.searchParams.set('redirect', url.pathname);
-		redirect(302, loginUrl);
-	}
+export const load: PageServerLoad = async event => {
+	const user = checkUser(event);
 
 	const createForm = await superValidate(zod(CreateCharacter));
 	const deleteForm = await superValidate(zod(DeleteCharacter));
@@ -22,7 +19,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	const userCharacters = await db
 		.select()
 		.from(characters)
-		.where(eq(characters.userId, locals.user.id));
+		.where(eq(characters.userId, user.id));
 
 	return {
 		createForm,
@@ -32,15 +29,11 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 };
 
 export const actions = {
-	create: async ({ locals, request, url }) => {
-		if (!locals.user) {
-			const loginUrl = new URL('/api/login', url);
-			loginUrl.searchParams.set('redirect', url.pathname);
-			redirect(302, loginUrl);
-		}
+	create: async event => {
+		const user = checkUser(event);
 
-		const l = log.child({ userId: locals.user.id });
-		const createForm = await superValidate(request, zod(CreateCharacter));
+		const l = log.child({ userId: user.id });
+		const createForm = await superValidate(event.request, zod(CreateCharacter));
 
 		if (!createForm.valid) {
 			return fail(400, { createForm });
@@ -50,7 +43,7 @@ export const actions = {
 			const { characterId } = (
 				await db
 					.insert(characters)
-					.values({ name: createForm.data.name, userId: locals.user.id })
+					.values({ name: createForm.data.name, userId: user.id })
 					.returning({ characterId: characters.id })
 			)[0];
 			l.info({ characterId }, 'Created character');
@@ -61,15 +54,11 @@ export const actions = {
 
 		return { createForm };
 	},
-	delete: async ({ locals, request, url }) => {
-		if (!locals.user) {
-			const loginUrl = new URL('/api/login', url);
-			loginUrl.searchParams.set('redirect', url.pathname);
-			redirect(302, loginUrl);
-		}
+	delete: async event => {
+		const user = checkUser(event);
 
-		const l = log.child({ userId: locals.user.id });
-		const deleteForm = await superValidate(request, zod(DeleteCharacter));
+		const l = log.child({ userId: user.id });
+		const deleteForm = await superValidate(event.request, zod(DeleteCharacter));
 
 		if (!deleteForm.valid) {
 			return fail(400, { deleteForm });
