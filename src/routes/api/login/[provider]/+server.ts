@@ -21,5 +21,12 @@ export const GET: RequestHandler = async ({ cookies, url, params }) => {
 		cookies.set('redirect', redirectPath, { path: '/api/login' });
 	}
 
+	const link = url.searchParams.get('link');
+	if (link) {
+		cookies.set('link', link, { path: '/api/login' });
+	} else {
+		cookies.delete('link', { path: '/api/login' });
+	}
+
 	redirect(302, authorizationUrl);
 };

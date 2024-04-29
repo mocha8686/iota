@@ -1,8 +1,9 @@
 <script lang="ts">
 	const { data } = $props();
-	const createUrl = (provider: string) =>
-		`/api/login/${provider}${data.redirect ? `?redirect=${data.redirect}` : ""}`;
+	const createUrl = (providerId: string) =>
+		`/api/login/${providerId}${data.redirect ? `?redirect=${data.redirect}` : ""}`;
 </script>
 
-<a href={createUrl("github")}>Login with GitHub</a>
-<a href={createUrl("discord")}>Login with Discord</a>
+{#each data.providers as { id, name }}
+	<a href={createUrl(id)}>Login with {name}</a>
+{/each}

@@ -15,7 +15,6 @@ export const GET: RequestHandler = async ({ url, cookies, params }) => {
 
 	const code = url.searchParams.get('code');
 	const state = url.searchParams.get('state');
-	const redirectPath = cookies.get('redirect');
 	const storedState = cookies.get('oauth_state');
 
 	if (!code || !state || !storedState || state !== storedState) {
@@ -47,35 +46,48 @@ export const GET: RequestHandler = async ({ url, cookies, params }) => {
 				),
 			);
 
-		if (existingAccount) {
-			const session = await lucia.createSession(existingAccount.userId, {});
-			const sessionCookie = lucia.createSessionCookie(session.id);
-			cookies.set(sessionCookie.name, sessionCookie.value, {
-				path: '.',
-				...sessionCookie.attributes,
-			});
+		const link = cookies.get('link');
+		if (link) {
+			if (!existingAccount) {
+				await db
+					.insert(oauthAccounts)
+					.values({
+						providerId: params.provider,
+						providerUserId: user.id,
+						userId: link,
+					});
+			}
 		} else {
-			const userId = generateId(15);
-
-			await db.transaction(async tx => {
-				await tx.insert(users).values({
-					id: userId,
-					username: user.username,
-					avatar: user.avatar,
+			if (existingAccount) {
+				const session = await lucia.createSession(existingAccount.userId, {});
+				const sessionCookie = lucia.createSessionCookie(session.id);
+				cookies.set(sessionCookie.name, sessionCookie.value, {
+					path: '.',
+					...sessionCookie.attributes,
 				});
-				await tx.insert(oauthAccounts).values({
-					providerId: params.provider,
-					providerUserId: user.id,
-					userId,
-				});
-			});
+			} else {
+				const userId = generateId(15);
 
-			const session = await lucia.createSession(userId, {});
-			const sessionCookie = lucia.createSessionCookie(session.id);
-			cookies.set(sessionCookie.name, sessionCookie.value, {
-				path: '.',
-				...sessionCookie.attributes,
-			});
+				await db.transaction(async tx => {
+					await tx.insert(users).values({
+						id: userId,
+						username: user.username,
+						avatar: user.avatar,
+					});
+					await tx.insert(oauthAccounts).values({
+						providerId: params.provider,
+						providerUserId: user.id,
+						userId,
+					});
+				});
+
+				const session = await lucia.createSession(userId, {});
+				const sessionCookie = lucia.createSessionCookie(session.id);
+				cookies.set(sessionCookie.name, sessionCookie.value, {
+					path: '.',
+					...sessionCookie.attributes,
+				});
+			}
 		}
 	} catch (e) {
 		if (e instanceof OAuth2RequestError) {
@@ -86,5 +98,6 @@ export const GET: RequestHandler = async ({ url, cookies, params }) => {
 		}
 	}
 
+	const redirectPath = cookies.get('redirect');
 	redirect(302, redirectPath ?? '/app');
 };

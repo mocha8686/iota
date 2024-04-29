@@ -23,6 +23,7 @@
 		<a href="/app/character">Character</a>
 		<a href="/app/scavenge">Scavenge</a>
 		<a href="/app/inventory">Inventory</a>
+		<a href="/app/link">Link</a>
 		<a href="/api/logout">Logout</a>
 	</nav>
 	<div class="user">

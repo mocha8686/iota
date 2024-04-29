@@ -1,8 +1,15 @@
 import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
+import { PROVIDER_MAP } from '$lib/server/auth';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
 	const redirectPath = url.searchParams.get('redirect');
 	if (locals.user) redirect(302, redirectPath ?? '/app');
-	return { redirect: redirectPath };
+
+	const providers = Array.from(PROVIDER_MAP, ([id, provider]) => ({
+		id,
+		name: provider.name,
+	}));
+
+	return { redirect: redirectPath, providers };
 };

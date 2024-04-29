@@ -85,6 +85,7 @@ export const discordUserInfo: UserInfo = async (accessToken: string) => {
 };
 
 interface Provider {
+	name: string;
 	createAuthorizationURL: OAuth2Provider['createAuthorizationURL'];
 	validateAuthorizationCode: OAuth2Provider['validateAuthorizationCode'];
 	userInfo: UserInfo;
@@ -94,6 +95,7 @@ export const PROVIDER_MAP: Map<string, Provider> = new Map([
 	[
 		'github',
 		{
+			name: 'GitHub',
 			createAuthorizationURL: github.createAuthorizationURL.bind(github),
 			validateAuthorizationCode: github.validateAuthorizationCode.bind(github),
 			userInfo: githubUserInfo,
@@ -102,6 +104,7 @@ export const PROVIDER_MAP: Map<string, Provider> = new Map([
 	[
 		'discord',
 		{
+			name: 'Discord',
 			createAuthorizationURL: async (state: string) =>
 				await discord.createAuthorizationURL(state, { scopes: ['identify'] }),
 			validateAuthorizationCode:
@@ -122,7 +125,10 @@ const providerFetch = async <T>(
 	return data;
 };
 
-export const checkUser = ({ locals, url }: RequestEvent): Exclude<App.Locals['user'], null> => {
+export const checkUser = ({
+	locals,
+	url,
+}: RequestEvent): Exclude<App.Locals['user'], null> => {
 	if (!locals.user) {
 		const loginUrl = new URL('/login', url);
 		loginUrl.searchParams.set('redirect', url.pathname);
