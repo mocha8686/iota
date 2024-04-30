@@ -9,6 +9,7 @@ const options = dev
 					colorize: true,
 				},
 			},
+			level: 'debug',
 		} satisfies LoggerOptions)
 	: undefined;
 

@@ -12,9 +12,10 @@ import { Discord, GitHub, type OAuth2Provider } from 'arctic';
 import { Lucia } from 'lucia';
 import { db } from './db';
 import { sessions, users } from './schema';
+import { OAuth2Client } from 'oslo/oauth2';
 
-export const github = new GitHub(GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET);
-export const discord = new Discord(
+const github = new GitHub(GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET);
+const discord = new Discord(
 	DISCORD_CLIENT_ID,
 	DISCORD_CLIENT_SECRET,
 	DISCORD_REDIRECT_URI,
@@ -113,6 +114,34 @@ export const PROVIDER_MAP: Map<string, Provider> = new Map([
 		},
 	],
 ]);
+
+if (dev) {
+const test = new OAuth2Client(
+	'test',
+	'http://localhost:6173/authorize',
+	'http://localhost:6173/token',
+	{
+		redirectURI: 'http://localhost:5173/api/login/test/callback',
+	},
+);
+
+	PROVIDER_MAP.set('test', {
+		name: 'Test',
+		createAuthorizationURL: async (state: string) =>
+			await test.createAuthorizationURL({ state }),
+		validateAuthorizationCode: async (code: string) => {
+			const res = await test.validateAuthorizationCode(code);
+			return {
+				accessToken: res.access_token,
+			};
+		},
+		userInfo: async _ => ({
+			id: crypto.randomUUID(),
+			username: 'Test Account',
+			avatar: `https://unsplash.it/seed/${crypto.randomUUID()}/256/256`,
+		}),
+	});
+}
 
 const providerFetch = async <T>(
 	url: URL | string,

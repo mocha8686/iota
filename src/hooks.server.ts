@@ -1,7 +1,9 @@
+import { dev } from '$app/environment';
 import { lucia } from '$lib/server/auth';
 import { log } from '$lib/server/log';
 import { type Handle, type HandleServerError, error } from '@sveltejs/kit';
 import { verifyRequestOrigin } from 'lucia';
+import { createOauthMockServer } from '$lib/server/tests/oauth';
 
 export const handle: Handle = async ({ event, resolve }) => {
 	log.info(
@@ -62,3 +64,23 @@ export const handleError: HandleServerError = async ({
 	log.error({ errorId, error, event, status, message }, 'Server error');
 	return { message: 'Whoops!', errorId };
 };
+
+if (dev) {
+	const fastify = createOauthMockServer();
+	try {
+		await fastify.listen({ port: 6173 });
+	} catch (e) {
+		if (
+			!(
+				typeof e === 'object' &&
+				e &&
+				'code' in e &&
+				typeof e.code === 'string' &&
+				e.code === 'EADDRINUSE'
+			)
+		) {
+			throw e;
+		}
+	}
+}
+
