@@ -7,7 +7,6 @@
 	let disabled = $state(false);
 
 	onNavigate(async ({ from, to }) => {
-		console.log({ from, to });
 		if (from && to && from.url.toString() === to.url.toString()) return;
 		disabled = true;
 		await grid();
