@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math/rand/v2"
 	"net/http"
 	"os"
 
@@ -16,11 +17,9 @@ func main() {
 
 	r := chi.NewRouter()
 	r.Use(logMiddleware)
-	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		if _, err := w.Write([]byte("Hello, Chi!")); err != nil {
-			log.Err(err).Msg("Error while serving index")
-		}
-	})
+
+	r.Get("/", http.FileServer(http.Dir("frontend/public")).ServeHTTP)
+	r.Get("/api/rand", randomColor);
 
 	port, exists := os.LookupEnv("PORT")
 	if !exists {
@@ -37,4 +36,12 @@ func main() {
 func setupLogger() func(http.Handler) http.Handler {
 	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
 	return middleware.RequestLogger(&middleware.DefaultLogFormatter{Logger: &log.Logger, NoColor: false})
+}
+
+func randomColor(w http.ResponseWriter, _ *http.Request) {
+	r,g,b := rand.IntN(255), rand.IntN(255), rand.IntN(255)
+	header := fmt.Sprintf("<h1 id=\"header\" style=\"color: rgb(%v, %v, %v);\">Hello, <span x-text=\"thing\"></span>!</h1>", r, g, b)
+	if _, err := w.Write([]byte(header)); err != nil {
+		log.Err(err).Msg("Generating random header")
+	}
 }
