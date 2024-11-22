@@ -1,7 +1,9 @@
 package main
 
 import (
+	_ "embed"
 	"fmt"
+	"html/template"
 	"math/rand/v2"
 	"net/http"
 	"os"
@@ -38,10 +40,16 @@ func setupLogger() func(http.Handler) http.Handler {
 	return middleware.RequestLogger(&middleware.DefaultLogFormatter{Logger: &log.Logger, NoColor: false})
 }
 
+//go:embed frontend/templates/header.html
+var headerText string
+var header = template.Must(template.New("header").Parse(headerText))
+
 func randomColor(w http.ResponseWriter, _ *http.Request) {
 	r,g,b := rand.IntN(255), rand.IntN(255), rand.IntN(255)
-	header := fmt.Sprintf("<h1 id=\"header\" style=\"color: rgb(%v, %v, %v);\">Hello, <span x-text=\"thing\"></span>!</h1>", r, g, b)
-	if _, err := w.Write([]byte(header)); err != nil {
-		log.Err(err).Msg("Generating random header")
+	color := fmt.Sprintf("rgb(%v, %v, %v)", r, g, b)
+
+	if err := header.Execute(w, template.CSS(color)); err != nil {
+		log.Err(err).Msg("Writing template")
+		return
 	}
 }
