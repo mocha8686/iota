@@ -15,17 +15,16 @@
 	<div x-data="{ thing: 'world', error: '' }">
 		<h1 id="header">Hello, <span x-text="thing"></span>!</h1>
 		<input type="text" x-model="thing">
-		<button
-			hx-get="/api/rand"
-			hx-target="#header"
-			hx-swap="outerHTML"
-			@click="error = ''"
-			@htmx:send-error="error = 'Error getting header.'"
-			@htmx:response-error="error = 'Error getting header.'">
-				Randomize color
-			</button>
+		<button hx-get="/api/rand" hx-target="#header" hx-swap="outerHTML" @click="error = ''"
+			@htmx:send-error="error = 'Error getting header.'" @htmx:response-error="error = 'Error getting header.'">
+			Randomize color
+		</button>
 		<div x-show="error.length>0" x-text="error"></div>
 	</div>
+
+	<button hx-get="/api/users" hx-swap="outerHTML">
+		Get users
+	</button>
 </body>
 
 </html>
