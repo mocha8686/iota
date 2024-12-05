@@ -8,6 +8,7 @@ import (
 	"github.com/rs/zerolog/log"
 
 	"github.com/mocha8686/iota/model"
+	"github.com/mocha8686/iota/response"
 )
 
 type Env struct {
@@ -24,8 +25,7 @@ func (env *Env) AllUsers(w http.ResponseWriter, r *http.Request) {
 	users, err := env.users.All()
 	if err != nil {
 		log.Err(err).Msg("AllUsers")
-		status := http.StatusInternalServerError
-		http.Error(w, http.StatusText(status), status)
+		response.RenderStatusErr(w, r, http.StatusInternalServerError)
 		return
 	}
 
