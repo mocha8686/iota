@@ -25,15 +25,7 @@ func Logout(env *env.Env) http.HandlerFunc {
 			return
 		}
 
-		sessionCookie, err := r.Cookie("session")
-		if err != nil {
-			log.Err(err).Msg("Getting session cookie")
-			response.RenderStatusErr(w, r, http.StatusInternalServerError, err)
-			return
-		}
-
-		sessionCookie.MaxAge = -1
-		http.SetCookie(w, sessionCookie)
+		sessions.DeleteSessionCookie(w)
 
 		http.Redirect(w, r, "/", http.StatusFound)
 	}

@@ -34,6 +34,7 @@ func GetSession(env *env.Env) func(next http.Handler) http.Handler {
 			}
 
 			if user == nil {
+				sessions.DeleteSessionCookie(w)
 				log.Debug().Str("reason", "No valid session found").Msg("Redirecting to login")
 				http.Redirect(w, r, "/login.html", http.StatusFound)
 				return
@@ -53,7 +54,7 @@ func GetSession(env *env.Env) func(next http.Handler) http.Handler {
 
 func CheckForSession(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		_, err := r.Cookie("session")
+		session, err := r.Cookie("session")
 		if err == nil || !errors.Is(err, http.ErrNoCookie) {
 			if err != nil {
 				log.Err(err).Msg("Checking for session cookie at login")
@@ -63,6 +64,11 @@ func CheckForSession(next http.Handler) http.Handler {
 				http.Redirect(w, r, "/app", http.StatusFound)
 			}
 			return
+		}
+
+		if session != nil && session.Value != "" {
+			log.Info().Msg("Already logged in, redirecting to app")
+			http.Redirect(w, r, "/app", http.StatusFound)
 		}
 
 		next.ServeHTTP(w, r)
