@@ -8,7 +8,7 @@ import (
 
 	"github.com/mocha8686/iota/env"
 	"github.com/mocha8686/iota/response"
-	"github.com/mocha8686/iota/session"
+	"github.com/mocha8686/iota/sessions"
 )
 
 func GetSession(env *env.Env) func(next http.Handler) http.Handler {
@@ -26,7 +26,7 @@ func GetSession(env *env.Env) func(next http.Handler) http.Handler {
 				return
 			}
 
-			user, session, fresh, err := session.ValidateSessionToken(env, token.Value)
+			user, session, fresh, err := sessions.ValidateSessionToken(env, token.Value)
 			if err != nil {
 				log.Err(err).Msg("Validating session")
 				response.RenderStatusErr(w, r, http.StatusInternalServerError, err)

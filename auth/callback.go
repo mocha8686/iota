@@ -13,7 +13,7 @@ import (
 	"github.com/mocha8686/iota/auth/providers"
 	"github.com/mocha8686/iota/env"
 	"github.com/mocha8686/iota/response"
-	"github.com/mocha8686/iota/session"
+	"github.com/mocha8686/iota/sessions"
 )
 
 func Callback(env *env.Env, p providers.Provider) http.HandlerFunc {
@@ -53,14 +53,14 @@ func Callback(env *env.Env, p providers.Provider) http.HandlerFunc {
 			}
 		}
 
-		sessionToken, err := session.GenerateSessionToken()
+		sessionToken, err := sessions.GenerateSessionToken()
 		if err != nil {
 			log.Err(err).Msg("Generating session token")
 			response.RenderStatusErr(w, r, http.StatusInternalServerError, err)
 			return
 		}
 
-		if err := session.CreateSession(env, sessionToken, user.ID); err != nil {
+		if err := sessions.CreateSession(env, sessionToken, user.ID); err != nil {
 			log.Err(err).Msg("Creating session")
 			return
 		}

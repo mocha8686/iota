@@ -8,6 +8,7 @@ import (
 	"github.com/mocha8686/iota/env"
 	"github.com/mocha8686/iota/model"
 	"github.com/mocha8686/iota/response"
+	"github.com/mocha8686/iota/sessions"
 )
 
 func Logout(env *env.Env) http.HandlerFunc {

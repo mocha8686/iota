@@ -1,10 +1,11 @@
-package session
+package sessions
 
 import (
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/base32"
 	"encoding/hex"
+	"net/http"
 	"time"
 
 	"github.com/mocha8686/iota/env"
@@ -26,7 +27,7 @@ func CalculateSessionID(token string) string {
 	return sessionID
 }
 
-func CreateSession(env *env.Env, token string, userID int) (error) {
+func CreateSession(env *env.Env, token string, userID int) error {
 	const thirtyDays = time.Hour * 24 * 30
 
 	sessionID := CalculateSessionID(token)
@@ -79,4 +80,15 @@ func ValidateSessionToken(env *env.Env, token string) (*model.User, *model.Sessi
 	}
 
 	return user, session, fresh, nil
+}
+
+func DeleteSessionCookie(w http.ResponseWriter) {
+	http.SetCookie(w, &http.Cookie{
+		Name:     "session",
+		Value:    "",
+		Path:     "/",
+		MaxAge:   -1,
+		Secure:   true,
+		HttpOnly: true,
+	})
 }
