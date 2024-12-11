@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"math/rand/v2"
 	"net/http"
+	"path"
 	"strings"
 
 	"github.com/go-chi/chi"
@@ -20,9 +21,17 @@ import (
 	"github.com/mocha8686/iota/response"
 )
 
+func FS(p string) http.HandlerFunc {
+	localDir := path.Join("frontend", p)
+	prefix := path.Join("/", p)
+	FS := http.StripPrefix(prefix, http.FileServer(http.Dir(localDir)))
+	return FS.ServeHTTP
+}
+
 func register(r *chi.Mux, env *env.Env, templates *template.Template) {
 	compress := chiMiddleware.Compress(5)
 	getSession := handlers.GetSession(env)
+	templateServer := handlers.TemplateServer(templates)
 
 	r.Use(chiMiddleware.RequestLogger(&chiMiddleware.DefaultLogFormatter{Logger: &log.Logger, NoColor: false}))
 	r.Use(handlers.CSRF)
@@ -30,7 +39,7 @@ func register(r *chi.Mux, env *env.Env, templates *template.Template) {
 	r.Route("/app", func(r chi.Router) {
 		r.Use(getSession)
 		r.Use(compress)
-		r.Get("/*", handlers.TemplateServer(templates))
+		r.Get("/*", templateServer)
 	})
 
 	r.Route("/api", func(r chi.Router) {
@@ -60,13 +69,18 @@ func register(r *chi.Mux, env *env.Env, templates *template.Template) {
 		})
 	})
 
-	staticFS := http.StripPrefix("/static", http.FileServer(http.Dir("frontend/static")))
-	r.Get("/static/*", staticFS.ServeHTTP)
+	r.Get("/static/*", FS("static"))
+	r.Get("/favicon.ico", FS("static"))
 
 	r.Group(func(r chi.Router) {
-		r.Use(handlers.CheckForSession)
 		r.Use(compress)
-		r.Get("/*", handlers.TemplateServer(templates))
+
+		r.Get("/assets/*", FS("assets"))
+
+		r.Group(func(r chi.Router) {
+			r.Use(handlers.CheckForSession)
+			r.Get("/*", templateServer)
+		})
 	})
 }
 
