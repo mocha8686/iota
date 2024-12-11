@@ -21,7 +21,7 @@ import (
 )
 
 func register(r *chi.Mux, env *env.Env, templates *template.Template) {
-	compress := chiMiddleware.Compress(5, "text/html", "text/css", "text/javascript", "image/svg", "image/webp", "image/gif")
+	compress := chiMiddleware.Compress(5)
 	getSession := handlers.GetSession(env)
 
 	r.Use(chiMiddleware.RequestLogger(&chiMiddleware.DefaultLogFormatter{Logger: &log.Logger, NoColor: false}))

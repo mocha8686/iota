@@ -39,6 +39,8 @@ func TemplateServer(templates *template.Template) http.HandlerFunc {
 
 		user, _ := model.UserFromContext(r.Context())
 
+		w.Header().Set("Content-Type", "text/html")
+
 		if err := page.ExecuteTemplate(w, "layout", user); err != nil {
 			log.Err(err).Msg("Writing layout")
 			response.RenderStatusErr(w, r, http.StatusInternalServerError, err)
