@@ -1,0 +1,43 @@
+* {
+	box-sizing: border-box;
+}
+
+body {
+	font-family: "Exo 2", sans-serif;
+	background-color: hsl(0 0% 10% / 100%);
+	color: hsl(213 63% 88% / 100%);
+}
+
+a {
+	color: hsl(213 92% 59% / 100%);
+}
+
+header {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 0.5rem;
+}
+
+.userinfo {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: flex-end;
+}
+
+.username {
+	margin: 0;
+}
+
+.ulid {
+	margin: 0;
+	font-size: 0.75rem;
+	filter: brightness(50%);
+}
+
+.avatar {
+	max-width: 4rem;
+	border-radius: 100%;
+}

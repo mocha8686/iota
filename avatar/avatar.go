@@ -39,5 +39,6 @@ func GetAvatar(w http.ResponseWriter, r *http.Request) {
 
 func ServeAvatar(w http.ResponseWriter, r *http.Request, u ulid.ULID) {
 	path := ULIDToAvatarPath(u)
+	w.Header().Set("Content-Type", "image/webp")
 	http.ServeFile(w, r, path)
 }
