@@ -14,18 +14,22 @@ import (
 
 	"github.com/mocha8686/iota/auth"
 	"github.com/mocha8686/iota/auth/providers"
+	"github.com/mocha8686/iota/avatar"
 	"github.com/mocha8686/iota/env"
 	"github.com/mocha8686/iota/handlers"
 	"github.com/mocha8686/iota/response"
 )
 
 func register(r *chi.Mux, env *env.Env, templates *template.Template) {
+	compress := chiMiddleware.Compress(5, "text/html", "text/css", "text/javascript", "image/svg", "image/webp", "image/gif")
+	getSession := handlers.GetSession(env)
+
 	r.Use(chiMiddleware.RequestLogger(&chiMiddleware.DefaultLogFormatter{Logger: &log.Logger, NoColor: false}))
 	r.Use(handlers.CSRF)
 
 	r.Route("/app", func(r chi.Router) {
-		r.Use(handlers.AuthMiddleware(env))
-		r.Use(chiMiddleware.Compress(5, "text/html", "text/css", "text/javascript"))
+		r.Use(getSession)
+		r.Use(compress)
 		r.Get("/*", handlers.TemplateServer(templates))
 	})
 
@@ -34,22 +38,34 @@ func register(r *chi.Mux, env *env.Env, templates *template.Template) {
 		r.Get("/users", env.AllUsers)
 
 		r.Group(func(r chi.Router) {
-			r.Use(handlers.AuthMiddleware(env))
+			r.Use(getSession)
 			r.Get("/logout", auth.Logout(env))
 		})
 
-		for _, provider := range providers.Providers {
-			name := strings.ToLower(provider.Name)
-			r.Get(fmt.Sprintf("/login/%v", name), auth.Login(provider))
-			r.Get(fmt.Sprintf("/callback/%v", name), auth.Callback(env, provider))
-		}
+		r.Route("/avatar", func(r chi.Router) {
+			r.Get("/{ulid}", avatar.GetAvatar)
+			r.Group(func(r chi.Router) {
+				r.Use(getSession)
+				r.Get("/", avatar.GetCurrentAvatar(env))
+			})
+		})
+
+		r.Group(func(r chi.Router) {
+			r.Use(handlers.CheckForSession)
+			for _, provider := range providers.Providers {
+				name := strings.ToLower(provider.Name)
+				r.Get(fmt.Sprintf("/login/%v", name), auth.Login(provider))
+				r.Get(fmt.Sprintf("/callback/%v", name), auth.Callback(env, provider))
+			}
+		})
 	})
 
 	staticFS := http.StripPrefix("/static", http.FileServer(http.Dir("frontend/static")))
 	r.Get("/static/*", staticFS.ServeHTTP)
 
 	r.Group(func(r chi.Router) {
-		r.Use(chiMiddleware.Compress(5, "text/html", "text/css", "text/javascript"))
+		r.Use(handlers.CheckForSession)
+		r.Use(compress)
 		r.Get("/*", handlers.TemplateServer(templates))
 	})
 }

@@ -3,6 +3,7 @@ package auth
 import (
 	"crypto/rand"
 	"encoding/base32"
+	"errors"
 	"net/http"
 
 	"github.com/rs/zerolog/log"
@@ -14,6 +15,18 @@ import (
 
 func Login(p providers.Provider) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		_, err := r.Cookie("session")
+		if err == nil || !errors.Is(err, http.ErrNoCookie) {
+			if err != nil {
+				log.Err(err).Msg("Checking for session cookie at login")
+				response.RenderStatusErr(w, r, http.StatusInternalServerError, err)
+			} else {
+				log.Info().Msg("Already logged in, redirecting to app")
+				http.Redirect(w, r, "/app", http.StatusFound)
+			}
+			return
+		}
+
 		verifier := oauth2.GenerateVerifier()
 
 		bytes := make([]byte, 12)

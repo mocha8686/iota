@@ -15,6 +15,7 @@ type User struct {
 }
 
 type userKeyType int
+
 var userKey userKeyType
 
 func (u *User) NewContext(ctx context.Context) context.Context {
@@ -57,8 +58,8 @@ func (e UserEnv) Get(id int) (*User, error) {
 	return &user, nil
 }
 
-func (e UserEnv) ByULID(ulid ulid.ULID) (*User, error) {
-	row := e.db.QueryRow("SELECT id, username FROM users WHERE ulid = ?", ulid.String())
+func (e UserEnv) ByULID(u ulid.ULID) (*User, error) {
+	row := e.db.QueryRow("SELECT id, username FROM users WHERE ulid = ?", u.String())
 
 	var user User
 	if err := row.Scan(&user.ID, &user.Username); err != nil {
@@ -67,7 +68,7 @@ func (e UserEnv) ByULID(ulid ulid.ULID) (*User, error) {
 		}
 		return nil, err
 	}
-	user.ULID = ulid
+	user.ULID = u
 
 	return &user, nil
 }

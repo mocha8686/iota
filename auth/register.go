@@ -12,6 +12,7 @@ import (
 	"github.com/oklog/ulid/v2"
 
 	"github.com/mocha8686/iota/auth/providers"
+	"github.com/mocha8686/iota/avatar"
 	"github.com/mocha8686/iota/env"
 	"github.com/mocha8686/iota/model"
 )
@@ -23,7 +24,7 @@ func registerUser(env *env.Env, p providers.Provider, userInfo providers.UserInf
 		return nil, fmt.Errorf("Creating avatars directory: %w", err)
 	}
 
-	if err := getAvatar(userInfo.AvatarURL.String(), ulid.String()); err != nil {
+	if err := getAvatar(userInfo.AvatarURL.String(), ulid); err != nil {
 		return nil, fmt.Errorf("Getting user avatar: %w", err)
 	}
 
@@ -59,7 +60,7 @@ func registerUser(env *env.Env, p providers.Provider, userInfo providers.UserInf
 	return user, nil
 }
 
-func getAvatar(avatarURL, ulidStr string) error {
+func getAvatar(avatarURL string, u ulid.ULID) error {
 	res, err := http.Get(avatarURL)
 	if err != nil {
 		return fmt.Errorf("Avatar request: %w", err)
@@ -77,7 +78,7 @@ func getAvatar(avatarURL, ulidStr string) error {
 	}
 
 	// TODO: avatar store interface?
-	avatarPath := fmt.Sprintf("avatars/%s.webp", ulidStr)
+	avatarPath := avatar.ULIDToAvatarPath(u)
 	file, err := os.Create(avatarPath)
 	if err != nil {
 		return fmt.Errorf("Creating avatar file: %w", err)

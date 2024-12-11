@@ -1,6 +1,10 @@
 {{define "body"}}
+<header>
+	<p>{{.Username}}</p>
+	<p>[{{.ULID}}]</p>
+	<img src="/api/avatar" alt="User avatar">
+</header>
 <h1>App</h1>
-<p>Welcome, {{.Username}} [{{.ULID}}].</p>
-<a href="/">Home</a>
+<p>Welcome, {{.Username}}.</p>
 <a href="/api/logout">Logout</a>
 {{end}}

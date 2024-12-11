@@ -11,7 +11,7 @@ import (
 	"github.com/mocha8686/iota/session"
 )
 
-func AuthMiddleware(env *env.Env) func(next http.Handler) http.Handler {
+func GetSession(env *env.Env) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			token, err := r.Cookie("session")
@@ -49,4 +49,20 @@ func AuthMiddleware(env *env.Env) func(next http.Handler) http.Handler {
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}
+}
+
+func CheckForSession(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, err := r.Cookie("session")
+		if err == nil || !errors.Is(err, http.ErrNoCookie) {
+			if err != nil {
+				log.Err(err).Msg("Checking for session cookie at login")
+				response.RenderStatusErr(w, r, http.StatusInternalServerError, err)
+			} else {
+				log.Info().Msg("Already logged in, redirecting to app")
+				http.Redirect(w, r, "/app", http.StatusFound)
+			}
+			return
+		}
+	})
 }
