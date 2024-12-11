@@ -2,6 +2,7 @@ package env
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -20,8 +21,8 @@ type Env struct {
 
 func New(db *sql.DB) *Env {
 	return &Env{
-		DB:    db,
-		Users: model.NewUserEnv(db),
+		DB:       db,
+		Users:    model.NewUserEnv(db),
 		Sessions: model.NewSessionEnv(db),
 	}
 }
@@ -30,7 +31,7 @@ func (env *Env) AllUsers(w http.ResponseWriter, r *http.Request) {
 	users, err := env.Users.All()
 	if err != nil {
 		log.Err(err).Msg("AllUsers")
-		response.RenderStatusErr(w, r, http.StatusInternalServerError)
+		response.RenderStatusErr(w, r, http.StatusInternalServerError, err)
 		return
 	}
 
@@ -53,7 +54,7 @@ WHERE oa.provider_name = ? AND oa.external_id = ?
 	var user model.User
 	var ulidStr string
 	if err := row.Scan(&user.ID, &ulidStr, &user.Username); err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
 		}
 		return nil, err

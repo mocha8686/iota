@@ -1,4 +1,4 @@
-package middleware
+package handlers
 
 import (
 	"net/http"
@@ -19,12 +19,26 @@ func CSRF(next http.Handler) http.Handler {
 			}
 
 			if origin == "" || origin != host {
+				err := &csrfMismatch{
+					origin: origin,
+					host:   host,
+				}
+
 				log.Warn().Str("origin", origin).Str("host", host).Msg("CSRF mismatch")
-				response.RenderStatusErr(w, r, http.StatusForbidden)
+				response.RenderStatusErr(w, r, http.StatusForbidden, err)
 				return
 			}
 		}
 
 		next.ServeHTTP(w, r)
 	})
+}
+
+type csrfMismatch struct {
+	origin string
+	host   string
+}
+
+func (c *csrfMismatch) Error() string {
+	return "CSRF mismatch"
 }

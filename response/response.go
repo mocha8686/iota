@@ -9,16 +9,18 @@ import (
 
 type StatusErr struct {
 	Code int
+	Err  error
 }
 
-func NewStatusErr(code int) *StatusErr {
+func NewStatusErr(code int, err error) *StatusErr {
 	return &StatusErr{
 		Code: code,
+		Err:  err,
 	}
 }
 
-func RenderStatusErr(w http.ResponseWriter, r *http.Request, code int) {
-	e := NewStatusErr(http.StatusInternalServerError)
+func RenderStatusErr(w http.ResponseWriter, r *http.Request, code int, err error) {
+	e := NewStatusErr(http.StatusInternalServerError, err)
 	if err := render.Render(w, r, e); err != nil {
 		log.Err(err).Msg("Rendering status error")
 	}

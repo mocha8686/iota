@@ -3,6 +3,7 @@ package model
 import (
 	"context"
 	"database/sql"
+	"errors"
 
 	"github.com/oklog/ulid/v2"
 )
@@ -41,7 +42,7 @@ func (e UserEnv) Get(id int) (*User, error) {
 	var user User
 	var ulidStr string
 	if err := row.Scan(&user.ID, &ulidStr, &user.Username); err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
 		}
 		return nil, err
@@ -61,7 +62,7 @@ func (e UserEnv) ByULID(ulid ulid.ULID) (*User, error) {
 
 	var user User
 	if err := row.Scan(&user.ID, &user.Username); err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
 		}
 		return nil, err
@@ -98,7 +99,7 @@ func (e UserEnv) All() ([]User, error) {
 	}
 
 	if err := rows.Err(); err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
 		}
 		return nil, err

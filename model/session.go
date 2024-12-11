@@ -3,6 +3,7 @@ package model
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"time"
 
 	"github.com/oklog/ulid/v2"
@@ -15,6 +16,7 @@ type Session struct {
 }
 
 type sessionKeyType int
+
 var sessionKey sessionKeyType
 
 func (s *Session) NewContext(ctx context.Context) context.Context {
@@ -50,7 +52,7 @@ WHERE s.id = ?
 	var user User
 	var ulidStr string
 	if err := row.Scan(&session.ID, &expiresAtSecs, &user.ID, &ulidStr, &user.Username); err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil, nil
 		}
 		return nil, nil, err
@@ -84,4 +86,3 @@ func (e SessionEnv) Delete(id string) error {
 	_, err := e.db.Exec("DELETE FROM sessions WHERE id = ?", id)
 	return err
 }
-

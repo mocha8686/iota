@@ -1,4 +1,4 @@
-package login
+package providers
 
 import (
 	"encoding/json"
@@ -11,6 +11,17 @@ import (
 	"github.com/ravener/discord-oauth2"
 	"golang.org/x/oauth2"
 )
+
+var Discord Provider = Provider{
+	Name: "Discord",
+	Config: oauth2.Config{
+		ClientID:     os.Getenv("DISCORD_CLIENT_ID"),
+		ClientSecret: os.Getenv("DISCORD_CLIENT_SECRET"),
+		Scopes:       []string{discord.ScopeIdentify},
+		Endpoint:     discord.Endpoint,
+	},
+	FetchUserInfo: fetchDiscordUserInfo,
+}
 
 type discordResponse struct {
 	ID         string `json:"id"`
@@ -52,15 +63,4 @@ func fetchDiscordUserInfo(c *http.Client) (UserInfo, error) {
 	}
 
 	return userInfo, nil
-}
-
-var Discord Provider = Provider{
-	Name: "Discord",
-	Config: oauth2.Config{
-		ClientID:     os.Getenv("DISCORD_CLIENT_ID"),
-		ClientSecret: os.Getenv("DISCORD_CLIENT_SECRET"),
-		Scopes:       []string{discord.ScopeIdentify},
-		Endpoint:     discord.Endpoint,
-	},
-	FetchUserInfo: fetchDiscordUserInfo,
 }

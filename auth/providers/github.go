@@ -1,4 +1,4 @@
-package login
+package providers
 
 import (
 	"encoding/json"
@@ -12,6 +12,17 @@ import (
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/github"
 )
+
+var Github Provider = Provider{
+	Name: "GitHub",
+	Config: oauth2.Config{
+		ClientID:     os.Getenv("GITHUB_CLIENT_ID"),
+		ClientSecret: os.Getenv("GITHUB_CLIENT_SECRET"),
+		Scopes:       []string{},
+		Endpoint:     github.Endpoint,
+	},
+	FetchUserInfo: fetchGithubUserInfo,
+}
 
 type githubResponse struct {
 	ID        int    `json:"id"`
@@ -54,15 +65,4 @@ func fetchGithubUserInfo(c *http.Client) (UserInfo, error) {
 	}
 
 	return userInfo, nil
-}
-
-var Github Provider = Provider{
-	Name: "GitHub",
-	Config: oauth2.Config{
-		ClientID:     os.Getenv("GITHUB_CLIENT_ID"),
-		ClientSecret: os.Getenv("GITHUB_CLIENT_SECRET"),
-		Scopes:       []string{},
-		Endpoint:     github.Endpoint,
-	},
-	FetchUserInfo: fetchGithubUserInfo,
 }
