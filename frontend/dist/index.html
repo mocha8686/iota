@@ -19,4 +19,10 @@
 <button hx-get="/api/users" hx-swap="outerHTML">
 	Get users
 </button>
+
+<script>
+	document.addEventListener('htmx:beforeSwap', e => {
+		console.log('Hello, world!');
+	});
+</script>
 {{end}}
