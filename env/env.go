@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/oklog/ulid/v2"
 	"github.com/rs/zerolog/log"
 
 	"github.com/mocha8686/iota/model"
@@ -60,11 +59,9 @@ WHERE oa.provider_name = ? AND oa.external_id = ?
 		return nil, err
 	}
 
-	ulid, err := ulid.Parse(ulidStr)
-	if err != nil {
+	if err := user.ParseUserFromRows(ulidStr); err != nil {
 		return nil, err
 	}
-	user.ULID = ulid
 
 	return &user, nil
 }

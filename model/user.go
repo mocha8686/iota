@@ -27,6 +27,16 @@ func UserFromContext(ctx context.Context) (*User, bool) {
 	return u, ok
 }
 
+func (u *User) ParseUserFromRows(ulidStr string) error {
+	ulid, err := ulid.Parse(ulidStr)
+	if err != nil {
+		return err
+	}
+
+	u.ULID = ulid
+	return nil
+}
+
 type UserEnv struct {
 	db *sql.DB
 }
@@ -42,6 +52,7 @@ func (e UserEnv) Get(id int) (*User, error) {
 
 	var user User
 	var ulidStr string
+
 	if err := row.Scan(&user.ID, &ulidStr, &user.Username); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
@@ -49,11 +60,9 @@ func (e UserEnv) Get(id int) (*User, error) {
 		return nil, err
 	}
 
-	ulid, err := ulid.Parse(ulidStr)
-	if err != nil {
+	if err := user.ParseUserFromRows(ulidStr); err != nil {
 		return nil, err
 	}
-	user.ULID = ulid
 
 	return &user, nil
 }
@@ -90,11 +99,9 @@ func (e UserEnv) All() ([]User, error) {
 			return nil, err
 		}
 
-		ulid, err := ulid.Parse(ulidStr)
-		if err != nil {
+		if err := user.ParseUserFromRows(ulidStr); err != nil {
 			return nil, err
 		}
-		user.ULID = ulid
 
 		users = append(users, user)
 	}

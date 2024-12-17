@@ -5,8 +5,6 @@ import (
 	"database/sql"
 	"errors"
 	"time"
-
-	"github.com/oklog/ulid/v2"
 )
 
 type Session struct {
@@ -26,6 +24,10 @@ func (s *Session) NewContext(ctx context.Context) context.Context {
 func SessionFromContext(ctx context.Context) (*Session, bool) {
 	s, ok := ctx.Value(sessionKey).(*Session)
 	return s, ok
+}
+
+func (s *Session) ParseSessionFromRows(expiresAtSecs int64) {
+	s.ExpiresAt = time.Unix(expiresAtSecs, 0)
 }
 
 type SessionEnv struct {
@@ -49,8 +51,10 @@ WHERE s.id = ?
 
 	var session Session
 	var expiresAtSecs int64
+
 	var user User
 	var ulidStr string
+
 	if err := row.Scan(&session.ID, &expiresAtSecs, &user.ID, &ulidStr, &user.Username); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil, nil
@@ -58,15 +62,11 @@ WHERE s.id = ?
 		return nil, nil, err
 	}
 
-	ulid, err := ulid.Parse(ulidStr)
-	if err != nil {
+	if err := user.ParseUserFromRows(ulidStr); err != nil {
 		return nil, nil, err
 	}
 
-	user.ULID = ulid
-
-	session.UserID = user.ID
-	session.ExpiresAt = time.Unix(expiresAtSecs, 0)
+	session.ParseSessionFromRows(expiresAtSecs)
 
 	return &user, &session, nil
 }
