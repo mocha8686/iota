@@ -1,3 +1,24 @@
-<h1 id="header" style="color: {{.}};">
-	Hello, <span x-text="thing"></span>!
-</h1>
+<header class="header" x-data="{ open: false }">
+	<a href="/app" class="header__link">
+		<iconify-icon icon="solar:home-broken" width="24" height="24"></iconify-icon>
+		Home
+	</a>
+
+	<div class="header__userinfo" @click="open = !open" @click.outside="open = false">
+		<iconify-icon class="userinfo__menu" :class="open && 'open'" icon="solar:alt-arrow-down-bold-duotone" width="24"
+			height="24"></iconify-icon>
+		<p class="userinfo__username">{{.Username}}</p>
+		<p class="userinfo__ulid">[{{.ULID}}]</p>
+		<img class="userinfo__avatar" src="/api/avatar" alt="User avatar">
+		<div class="userinfo__dropdown" x-show="open" x-transition:enter="enter" x-transition:leave="leave">
+			<a class="dropdown__link" href="/app/settings.html">
+				<iconify-icon icon="solar:settings-minimalistic-broken" width="24" height="24"></iconify-icon>
+				Settings
+			</a>
+			<a class="dropdown__link" href="/api/logout">
+				<iconify-icon icon="solar:logout-2-broken" width="24" height="24"></iconify-icon>
+				Logout
+			</a>
+		</div>
+	</div>
+</header>

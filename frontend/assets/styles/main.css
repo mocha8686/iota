@@ -6,38 +6,130 @@ body {
 	font-family: "Exo 2", sans-serif;
 	background-color: hsl(0 0% 10% / 100%);
 	color: hsl(213 63% 88% / 100%);
+	margin: 0;
 }
 
 a {
 	color: hsl(213 92% 59% / 100%);
 }
 
-header {
+.header {
 	display: flex;
 	flex-direction: row;
-	align-items: center;
-	justify-content: flex-end;
+	align-items: stretch;
+	justify-content: flex-start;
 	gap: 0.5rem;
+
+	padding-inline-start: 1.5rem;
+	width: calc(100vw + 0.6rem);
+	transform: translateX(-0.3rem) skew(-6deg);
+
+	background-color: hsl(0 0% 7% / 100%);
 }
 
-.userinfo {
+.header__link {
 	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: flex-end;
+	align-items: center;
+	gap: 0.5rem;
+
+	color: inherit;
+	text-decoration: none;
+	transition: background-color 100ms ease-in-out;
+	padding: 0.75rem;
 }
 
-.username {
+.header__link:hover {
+	background-color: hsl(0 0% 15% / 100%);
+}
+
+.header__userinfo {
+	display: grid;
+	grid-template:
+		"menu username avatar" 1fr
+		"menu ulid     avatar" 1fr / min-content 1fr min-content;
+	justify-items: end;
+	align-items: center;
+
+	position: relative;
+
+	gap: 0.1rem 0.35rem;
+	padding: 0.5rem 1rem;
+	margin-inline-start: auto;
+	margin-inline-end: 1rem;
+
+	outline: 1px solid transparent;
+	transition: background-color 150ms;
+	cursor: pointer;
+	background-color: hsl(0 0% 7% / 100%);
+}
+
+.header__userinfo:hover {
+	background-color: hsl(0 0% 15% / 100%);
+}
+
+.userinfo__menu {
+	grid-area: menu;
+	transition: rotate 250ms ease-out;
+}
+
+.userinfo__menu.open {
+	rotate: 180deg;
+}
+
+.userinfo__username {
+	grid-area: username;
+	align-self: end;
 	margin: 0;
 }
 
-.ulid {
+.userinfo__ulid {
+	grid-area: ulid;
+	align-self: start;
 	margin: 0;
 	font-size: 0.75rem;
 	filter: brightness(50%);
 }
 
-.avatar {
+.userinfo__avatar {
+	grid-area: avatar;
 	max-width: 4rem;
 	border-radius: 100%;
 }
+
+.userinfo__dropdown {
+	position: absolute;
+	inset: 100% 0 auto;
+	background-color: hsl(0 0% 7% / 100%);
+
+	display: flex;
+	flex-direction: column;
+
+	z-index: -1;
+	outline: 1px solid transparent;
+	transform: translateZ(-1rem);
+	transition: transform 250ms ease-out;
+}
+
+.userinfo__dropdown.enter {
+	transform: translateY(-100%) translateZ(-1rem);
+}
+
+.userinfo__dropdown.leave {
+	transform: translateY(-100%) translateZ(-1rem);
+}
+
+.dropdown__link {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+
+	color: inherit;
+	text-decoration: none;
+	transition: background-color 100ms ease-in-out;
+	padding: 0.75rem;
+}
+
+.dropdown__link:hover {
+	background-color: hsl(0 0% 15% / 100%);
+}
+

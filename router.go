@@ -89,7 +89,14 @@ func randomColor(templates *template.Template) http.HandlerFunc {
 		r, g, b := rand.IntN(255), rand.IntN(255), rand.IntN(255)
 		color := fmt.Sprintf("rgb(%v, %v, %v)", r, g, b)
 
-		if err := templates.ExecuteTemplate(w, "header.html", template.CSS(color)); err != nil {
+		header, err := templates.Lookup("color-header.html").Clone()
+		if err != nil {
+			log.Err(err).Msg("Cloning header template")
+			response.RenderStatusErr(w, rq, http.StatusInternalServerError, err)
+			return
+		}
+
+		if err := header.Execute(w, template.CSS(color)); err != nil {
 			log.Err(err).Msg("Writing template")
 			response.RenderStatusErr(w, rq, http.StatusInternalServerError, err)
 			return
