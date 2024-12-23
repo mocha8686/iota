@@ -31,7 +31,6 @@ func FS(p string) http.HandlerFunc {
 func register(r *chi.Mux, env *env.Env, templates *template.Template) {
 	compress := chiMiddleware.Compress(5)
 	getSession := handlers.GetSession(env)
-	templateServer := handlers.TemplateServer(templates)
 
 	r.Use(chiMiddleware.RequestLogger(&chiMiddleware.DefaultLogFormatter{Logger: &log.Logger, NoColor: false}))
 	r.Use(handlers.CSRF)
@@ -39,7 +38,7 @@ func register(r *chi.Mux, env *env.Env, templates *template.Template) {
 	r.Route("/app", func(r chi.Router) {
 		r.Use(getSession)
 		r.Use(compress)
-		r.Get("/*", templateServer)
+		r.Get("/*", handlers.TemplateServer(templates, "app_layout.html"))
 	})
 
 	r.Route("/api", func(r chi.Router) {
@@ -79,7 +78,7 @@ func register(r *chi.Mux, env *env.Env, templates *template.Template) {
 
 		r.Group(func(r chi.Router) {
 			r.Use(handlers.CheckForSession)
-			r.Get("/*", templateServer)
+			r.Get("/*", handlers.TemplateServer(templates, "layout.html"))
 		})
 	})
 }

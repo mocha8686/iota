@@ -12,14 +12,15 @@ import (
 	"github.com/mocha8686/iota/response"
 )
 
-func TemplateServer(templates *template.Template) http.HandlerFunc {
+func TemplateServer(templates *template.Template, layoutName string) http.HandlerFunc {
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		filePath := path.Clean(path.Join("frontend/dist", r.URL.Path))
 		if path.Ext(filePath) == "" {
 			filePath = path.Join(filePath, "index.html")
 		}
 
-		layout, err := templates.Lookup("layout.html").Clone()
+		log.Debug().Str("layout", layoutName).Msg("")
+		layout, err := templates.Lookup(layoutName).Clone()
 		if err != nil {
 			log.Err(err).Msg("Cloning layout template")
 			response.RenderStatusErr(w, r, http.StatusInternalServerError, err)
@@ -41,7 +42,7 @@ func TemplateServer(templates *template.Template) http.HandlerFunc {
 
 		w.Header().Set("Content-Type", "text/html")
 
-		if err := page.ExecuteTemplate(w, "layout", user); err != nil {
+		if err := page.ExecuteTemplate(w, layoutName, user); err != nil {
 			log.Err(err).Msg("Writing layout")
 			response.RenderStatusErr(w, r, http.StatusInternalServerError, err)
 			return
