@@ -7,6 +7,7 @@ body {
 	background-color: hsl(0 0% 10% / 100%);
 	color: hsl(213 63% 88% / 100%);
 	margin: 0;
+	overflow: hidden;
 }
 
 a {
@@ -133,3 +134,15 @@ a {
 	background-color: hsl(0 0% 15% / 100%);
 }
 
+.grid {
+	display: grid;
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+}
+
+.grid__cell {
+	background-color: black;
+	width: 4rem;
+	aspect-ratio: 1;
+}

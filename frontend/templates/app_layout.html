@@ -12,15 +12,18 @@
 		integrity="sha384-0895/pl2MU10Hqc6jd4RvrthNlDiE9U1tWmX7WRESftEDRosgxNsQG/Ze9YMRzHq"
 		crossorigin="anonymous"></script>
 	<script async src="https://code.iconify.design/iconify-icon/2.2.0/iconify-icon.min.js"></script>
+	<script type="module" defer src="/assets/scripts/grid.js"></script>
 
 	{{template "fontfaces.html"}}
 </head>
 
-<body hx-boost="true">
+<body>
 	{{template "header.html" .}}
-	<main>
+	<main id="swup">
 		{{template "body" .}}
 	</main>
+
+	<div id="grid" class="grid"></div>
 </body>
 
 </html>
