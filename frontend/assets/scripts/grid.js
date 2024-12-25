@@ -1,4 +1,5 @@
 import Swup from "https://unpkg.com/swup@4?module";
+import anime from '/assets/lib/anime.es.js';
 
 const CELL_SIZE_REM = 4;
 const ANGLE_DEG = 20;
@@ -7,38 +8,62 @@ const angleRad = (ANGLE_DEG * Math.PI) / 180;
 
 const swup = new Swup();
 
+let rows = 0, columns = 0;
+
 swup.hooks.replace("animation:out:await", async () => {
 	resizeGrid();
+	document.body.style.pointerEvents = 'none';
+	const animation = anime({
+		targets: '.grid__cell',
+		rotateX: 0,
+		rotateY: 0,
+		rotateZ: 0,
+		duration: 200,
+		easing: 'linear',
+		delay: anime.stagger(50, {grid: [rows, columns], from: 'first'}),
+	});
+	await animation.finished;
 });
 
 swup.hooks.replace("animation:in:await", async () => {
-	resizeGrid();
+	resizeGrid(true);
+	document.body.style.pointerEvents = 'auto';
+	const animation = anime({
+		targets: '.grid__cell',
+		rotateX: 90,
+		rotateY: 45,
+		rotateZ: -45,
+		duration: 200,
+		easing: 'linear',
+		delay: anime.stagger(50, {grid: [rows, columns], from: 'first'}),
+	});
+	await animation.finished;
 });
 
 let needResize = true;
 window.addEventListener("resize", () => (needResize = true));
 
-function resizeGrid() {
+function resizeGrid(visible = false) {
 	if (!needResize) return;
 	needResize = false;
 
 	const cellSizePx = getCellSizePx();
-	const [width, height] = calculateGridSize(cellSizePx);
+	[rows, columns] = calculateGridSize(cellSizePx);
 
 	const grid = document.getElementById("grid");
 	grid.textContent = "";
-	grid.style.gridTemplateColumns = `repeat(${width}, 1fr)`;
+	grid.style.gridTemplateColumns = `repeat(${rows}, 1fr)`;
 	grid.style.rotate = `-${ANGLE_DEG}deg`;
-	grid.style.width = `${width * CELL_SIZE_REM}rem`;
-	grid.style.height = `${height * CELL_SIZE_REM}rem`;
+	grid.style.width = `${rows * CELL_SIZE_REM}rem`;
+	grid.style.height = `${columns * CELL_SIZE_REM}rem`;
 
-	const [gridCenterX, gridCenterY] = [width * cellSizePx / 2, height*cellSizePx / 2];
+	const [gridCenterX, gridCenterY] = [rows * cellSizePx / 2, columns*cellSizePx / 2];
 	const [screenCenterX, screenCenterY] = [window.innerWidth / 2, window.innerHeight / 2];
 	const [x, y] = [screenCenterX - gridCenterX, screenCenterY - gridCenterY];
 	grid.style.translate = `${x}px ${y}px`;
 
-	for (let i = 0; i < width * height; i++) {
-		const cell = createCell();
+	for (let i = 0; i < rows * columns; i++) {
+		const cell = createCell(visible);
 		grid.appendChild(cell);
 	}
 }
@@ -81,9 +106,12 @@ function getCellSizePx() {
 	return width;
 }
 
-function createCell() {
+function createCell(visible = false) {
 	const cell = document.createElement("div");
 	cell.className = "grid__cell";
+	if (!visible) {
+		cell.style.transform = 'rotateX(90deg) rotateY(45deg) rotateZ(-45deg)';
+	}
 	return cell;
 }
 
