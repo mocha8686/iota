@@ -1,7 +1,8 @@
-local toggleterm = require("toggleterm")
-local cmd = vim.cmd
-local set = vim.keymap.set
+local function devServer()
+	local toggleterm = require("toggleterm")
+	toggleterm.exec("source ./export_env.sh && gow -e html,css,js,go run .", 2)
+	toggleterm.toggle(2)
+	toggleterm.toggle(1)
+end
 
-set("n", "<leader>td", function()
-	toggleterm.exec("source ./export_env.sh && gow -e html,css,go run .", 2)
-end, { noremap = true, silent = true, desc = "Start dev server" })
+vim.keymap.set("n", "<leader>td", devServer, { noremap = true, silent = true, desc = "Start dev server" })
