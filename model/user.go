@@ -85,6 +85,9 @@ func (e UserEnv) ByULID(u ulid.ULID) (*User, error) {
 func (e UserEnv) All() ([]User, error) {
 	rows, err := e.db.Query("SELECT id, ulid, username FROM users")
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil,nil
+		}
 		return nil, err
 	}
 	defer rows.Close()

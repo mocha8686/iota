@@ -1,0 +1,11 @@
+<h3>
+	<iconify-icon {{ .Icon }} width="24" height="24"></iconify-icon>
+	{{ .Account.ProviderName }}
+</h3>
+<p>
+	{{- if (.Exists) -}}
+	{{ .Username }}
+	{{- else -}}
+	No link.
+	{{ end }}
+</p>

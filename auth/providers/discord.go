@@ -20,10 +20,12 @@ var Discord Provider = Provider{
 		Scopes:       []string{discord.ScopeIdentify},
 		Endpoint:     discord.Endpoint,
 	},
+	Icon:          "simple-icons:discord",
 	FetchUserInfo: fetchDiscordUserInfo,
+	FetchUsername: fetchDiscordUsername,
 }
 
-type discordResponse struct {
+type discordUserInfo struct {
 	ID         string `json:"id"`
 	Username   string `json:"username"`
 	AvatarHash string `json:"avatar"`
@@ -44,7 +46,7 @@ func fetchDiscordUserInfo(c *http.Client) (UserInfo, error) {
 		return UserInfo{}, fmt.Errorf("Reading Discord user info: %w", err)
 	}
 
-	var data discordResponse
+	var data discordUserInfo
 	if err := json.Unmarshal(body, &data); err != nil {
 		return UserInfo{}, fmt.Errorf("Unmarshalling Discord user info: %w", err)
 	}
@@ -63,4 +65,31 @@ func fetchDiscordUserInfo(c *http.Client) (UserInfo, error) {
 	}
 
 	return userInfo, nil
+}
+
+type discordUsername struct {
+	Username string `json:"username"`
+}
+
+func fetchDiscordUsername(id string) (string, error) {
+	res, err := http.Get(fmt.Sprintf("https://discord.com/api/v10/users/%s", id))
+	if err != nil || res.StatusCode != http.StatusOK {
+		if err != nil {
+			err = fmt.Errorf("%v", res.StatusCode)
+		}
+		return "", fmt.Errorf("Getting Discord username: %w", err)
+	}
+	defer res.Body.Close()
+
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return "", fmt.Errorf("Reading Discord user info: %w", err)
+	}
+
+	var data discordUsername
+	if err := json.Unmarshal(body, &data); err != nil {
+		return "", fmt.Errorf("Unmarshalling Discord username: %w", err)
+	}
+
+	return data.Username, nil
 }

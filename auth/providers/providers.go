@@ -17,7 +17,9 @@ type UserInfo struct {
 type Provider struct {
 	Name          string
 	Config        oauth2.Config
+	Icon          string
 	FetchUserInfo func(*http.Client) (UserInfo, error)
+	FetchUsername func(id string) (string, error)
 }
 
 func (p Provider) GetUserInfo(context context.Context, token *oauth2.Token) (UserInfo, error) {

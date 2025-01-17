@@ -1,4 +1,7 @@
 {{define "body"}}
 <h1>Settings</h1>
-<p>Welcome, {{.Username}}.</p>
+<section>
+	<h2>Accounts</h2>
+	<div hx-get="/api/accounts" hx-trigger="load" hx-swap="innerHTML"></div>
+</section>
 {{end}}

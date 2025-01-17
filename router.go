@@ -58,6 +58,11 @@ func register(r *chi.Mux, env *env.Env, templates *template.Template) {
 			})
 		})
 
+		r.Route("/accounts", func(r chi.Router) {
+			r.Use(getSession)
+			r.Get("/", env.UserAccounts(templates))
+		})
+
 		r.Group(func(r chi.Router) {
 			r.Use(handlers.CheckForSession)
 			for _, provider := range providers.Providers {

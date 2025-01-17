@@ -21,6 +21,7 @@ func GetCurrentAvatar(env *env.Env) http.HandlerFunc {
 		user, ok := model.UserFromContext(r.Context())
 		if !ok {
 			response.RenderStatusErr(w, r, http.StatusUnauthorized, nil)
+			return
 		}
 
 		ServeAvatar(w, r, user.ULID)

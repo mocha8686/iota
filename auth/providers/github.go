@@ -21,17 +21,19 @@ var Github Provider = Provider{
 		Scopes:       []string{},
 		Endpoint:     github.Endpoint,
 	},
+	Icon:          "simple-icons:github",
 	FetchUserInfo: fetchGithubUserInfo,
+	FetchUsername: fetchGithubUsername,
 }
 
-type githubResponse struct {
+type githubUserInfo struct {
 	ID        int    `json:"id"`
 	Username  string `json:"login"`
 	AvatarURL string `json:"avatar_url"`
 }
 
 func fetchGithubUserInfo(c *http.Client) (UserInfo, error) {
-	req, err := http.NewRequest("GET", "", nil)
+	req, err := http.NewRequest("GET", "https://api.github.com/user", nil)
 	if err != nil {
 		return UserInfo{}, fmt.Errorf("Setting up Github request: %w", err)
 	}
@@ -39,7 +41,10 @@ func fetchGithubUserInfo(c *http.Client) (UserInfo, error) {
 
 	res, err := c.Do(req)
 	if err != nil || !(res.StatusCode == http.StatusOK || res.StatusCode == http.StatusNotModified) {
-		return UserInfo{}, fmt.Errorf("Getting Github uesr info: %w", err)
+		if err != nil {
+			err = fmt.Errorf("%v", res.StatusCode)
+		}
+		return UserInfo{}, fmt.Errorf("Getting Github user info: %w", err)
 	}
 	defer res.Body.Close()
 
@@ -48,7 +53,7 @@ func fetchGithubUserInfo(c *http.Client) (UserInfo, error) {
 		return UserInfo{}, fmt.Errorf("Reading Github user info: %w", err)
 	}
 
-	var data githubResponse
+	var data githubUserInfo
 	if err := json.Unmarshal(body, &data); err != nil {
 		return UserInfo{}, fmt.Errorf("Unmarshalling Github user info: %w", err)
 	}
@@ -65,4 +70,31 @@ func fetchGithubUserInfo(c *http.Client) (UserInfo, error) {
 	}
 
 	return userInfo, nil
+}
+
+type githubUsername struct {
+	Username string `json:"login"`
+}
+
+func fetchGithubUsername(id string) (string, error) {
+	res, err := http.Get(fmt.Sprintf("https://api.github.com/user/%s", id))
+	if err != nil || !(res.StatusCode == http.StatusOK || res.StatusCode == http.StatusNotModified) {
+		if err != nil {
+			err = fmt.Errorf("%v", res.StatusCode)
+		}
+		return "", fmt.Errorf("Getting Github username: %w", err)
+	}
+	defer res.Body.Close()
+
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return "", fmt.Errorf("Reading Github username: %w", err)
+	}
+
+	var data githubUsername
+	if err := json.Unmarshal(body, &data); err != nil {
+		return "", fmt.Errorf("Unmarshalling Github username: %w", err)
+	}
+
+	return data.Username, nil
 }
